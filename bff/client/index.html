@@ -16,16 +16,18 @@
                     <td class="last-reading">Last Reading</td>
                     <td class="litres-per-pulse">Litres / Pulse</td>
                     <td class="reading">Reading (KL)</td>
+                    <td class="reading"></td>
                 </tr>
             </thead>
             <tbody>
               {{#rows}}
-                <tr>
-                    <td class="device-display-name">{{displayName}}</td>
+                <tr data-device-channel-id="{{deviceChannelId}}">
+                    <td class="device-display-name"><input data-original-value={{displayName}} class="display-name" type="text" value="{{displayName}}"/></td>
                     <td class="device-channel-id">{{deviceChannelId}}</td>
                     <td class="last-reading">{{time}}</td>
-                    <td class="litres-per-pulse">{{litresPerPulse}}</td>
+                    <td class="litres-per-pulse"><input data-original-value class="litres-per-pulse" type="text" value="{{litresPerPulse}}"/></td>
                     <td class="reading">{{reading}}</td>
+                    <td class="save"><input data-device-channel-id="{{deviceChannelId}}" class="save" type="button" value="Save"></input></td>
                  </tr>
               {{/rows}}
             </tbody>
