@@ -31,7 +31,18 @@ document.addEventListener('DOMContentLoaded', function() {
           const litresPerPulseInput = $(`tr[data-device-channel-id="${deviceChannelId}"] input.litres-per-pulse`)
           const litresPerPulseNewValue = litresPerPulseInput[0].value
           const litresPerPulseOriginalValue = litresPerPulseInput[0].dataset['originalValue']
-          
+
+          const updatePromises = []
+          if (displayNameNewValue !== displayNameOriginalValue) {
+            updatePromises.push(fetch(`/server/device-channels/${deviceChannelId}/update-display-name`, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json'
+              },
+              body: JSON.stringify({ displayName: displayNameNewValue })
+            }))
+          }
+
         })
       })
     })

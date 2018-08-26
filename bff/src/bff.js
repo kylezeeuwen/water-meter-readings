@@ -98,6 +98,10 @@ class BFF {
         throw error
       }
     })
+
+    this.express.post(`/server/device-channels/:deviceChannelId/update-display-name`, (req, res) => {
+      console.log('got a post')
+    })
   }
 
   addCatchAllErrorHandlers () {
