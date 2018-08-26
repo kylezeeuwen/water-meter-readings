@@ -1,0 +1,7 @@
+#table-container td {
+    font-size: 17px;
+    font-weight: 800;
+    border: 1px solid lightblue;
+    margin: 6px;
+    padding: 6px;
+}

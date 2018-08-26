@@ -1,0 +1,1174 @@
+{
+  "devices": [
+    {
+      "channels": [
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "HB",
+          "value": 0,
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "MSI_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "TXT_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "battery",
+          "value": "OK",
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "ev",
+          "value": "3134",
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "failure_event",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "hardware_version",
+          "value": "0110",
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "last_message",
+          "value": "PC1=0 PC2=0 PC3=0 PC4=0 BAT=OK UBAT=3.61V  ",
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "product_id",
+          "value": "DMS-144",
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_1",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_2",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_3",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_4",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "reset_pulse_counter",
+          "value": 0,
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "sample_timeout",
+          "value": 1,
+          "time": "2018-08-15 17:32:19"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "send_command",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "serial_number",
+          "value": "DMS144007565",
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "software_version",
+          "value": "0105",
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "st",
+          "value": "1",
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "store_pulse_counter_periode",
+          "value": 0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "user_id",
+          "value": "DMS144007565",
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "userbyte",
+          "value": "",
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "V",
+          "perm": 1,
+          "name": "voltage",
+          "value": 3.6099999999999999,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "xbee_delivery_failed",
+          "value": 0,
+          "time": "None"
+        }
+      ],
+      "name": "DMS144007565"
+    },
+    {
+      "channels": [
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "HB",
+          "value": 0,
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "MSI_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "TXT_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "battery",
+          "value": "OK",
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "ev",
+          "value": "3135",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "failure_event",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "hardware_version",
+          "value": "0110",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "last_message",
+          "value": "PC1=0 PC2=0 PC3=0 PC4=0 BAT=OK UBAT=3.63V  ",
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "product_id",
+          "value": "DMS-144",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_1",
+          "value": 0,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_2",
+          "value": 0,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_3",
+          "value": 0,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_4",
+          "value": 0,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "reset_pulse_counter",
+          "value": 0,
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "sample_timeout",
+          "value": 1,
+          "time": "2018-08-15 17:32:28"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "send_command",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "serial_number",
+          "value": "DMS144007569",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "software_version",
+          "value": "0105",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "st",
+          "value": "1",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "store_pulse_counter_periode",
+          "value": 0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "user_id",
+          "value": "DMS144007569",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "userbyte",
+          "value": "",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "V",
+          "perm": 1,
+          "name": "voltage",
+          "value": 3.6299999999999999,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "xbee_delivery_failed",
+          "value": 0,
+          "time": "None"
+        }
+      ],
+      "name": "DMS144007569"
+    },
+    {
+      "channels": [
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "HB",
+          "value": 0,
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "MSI_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "TXT_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "battery",
+          "value": "OK",
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "ev",
+          "value": "2362",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "failure_event",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "hardware_version",
+          "value": "0110",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "last_message",
+          "value": "PC1=0 PC2=0 PC3=0 PC4=0 BAT=OK UBAT=3.58V  ",
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "product_id",
+          "value": "DMS-144",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_1",
+          "value": 0,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_2",
+          "value": 0,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_3",
+          "value": 0,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_4",
+          "value": 0,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "reset_pulse_counter",
+          "value": 0,
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "sample_timeout",
+          "value": 0,
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "send_command",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "serial_number",
+          "value": "DMS144007624",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "software_version",
+          "value": "0105",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "st",
+          "value": "4",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "store_pulse_counter_periode",
+          "value": 0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "user_id",
+          "value": "DMS144007624",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "userbyte",
+          "value": "~",
+          "time": "2018-08-15 17:33:04"
+        },
+        {
+          "unit": "V",
+          "perm": 1,
+          "name": "voltage",
+          "value": 3.5800000000000001,
+          "time": "2018-08-15 18:08:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "xbee_delivery_failed",
+          "value": 0,
+          "time": "None"
+        }
+      ],
+      "name": "DMS144007624"
+    },
+    {
+      "channels": [
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "HB",
+          "value": 0,
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "MSI_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "TXT_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "battery",
+          "value": "OK",
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "ev",
+          "value": "3137",
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "failure_event",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "hardware_version",
+          "value": "0110",
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "last_message",
+          "value": "PC1=0 PC2=0 PC3=0 PC4=0 BAT=OK UBAT=3.57V  ",
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "product_id",
+          "value": "DMS-144",
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_1",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_2",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_3",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_4",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "reset_pulse_counter",
+          "value": 0,
+          "time": "2018-08-15 17:33:02"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "sample_timeout",
+          "value": 1,
+          "time": "2018-08-15 17:32:24"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "send_command",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "serial_number",
+          "value": "DMS144007639",
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "software_version",
+          "value": "0105",
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "st",
+          "value": "1",
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "store_pulse_counter_periode",
+          "value": 0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "user_id",
+          "value": "DMS144007639",
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "userbyte",
+          "value": "",
+          "time": "2018-08-15 17:33:03"
+        },
+        {
+          "unit": "V",
+          "perm": 1,
+          "name": "voltage",
+          "value": 3.5699999999999998,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "xbee_delivery_failed",
+          "value": 0,
+          "time": "None"
+        }
+      ],
+      "name": "DMS144007639"
+    },
+    {
+      "channels": [
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "HB",
+          "value": 0,
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "HITEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "LOTEM_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "MSI_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "s",
+          "perm": 1,
+          "name": "TXT_I",
+          "value": 0,
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "battery",
+          "value": "OK",
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "ev",
+          "value": "3129",
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "failure_event",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "hardware_version",
+          "value": "0110",
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "last_message",
+          "value": "PC1=0 PC2=0 PC3=0 PC4=0 BAT=OK UBAT=3.60V  ",
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "product_id",
+          "value": "DMS-144",
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_1",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_2",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_3",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "cnt",
+          "perm": 1,
+          "name": "pulse_counter_4",
+          "value": 0,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "reset_pulse_counter",
+          "value": 0,
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "sample_timeout",
+          "value": 1,
+          "time": "2018-08-15 17:32:15"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "send_command",
+          "value": "",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "serial_number",
+          "value": "DMS144007645",
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "software_version",
+          "value": "0105",
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "st",
+          "value": "1",
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 3,
+          "name": "store_pulse_counter_periode",
+          "value": 0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_1",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "*C",
+          "perm": 1,
+          "name": "temperature_2",
+          "value": 0.0,
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "user_id",
+          "value": "DMS144007645",
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "userbyte",
+          "value": "",
+          "time": "2018-08-15 17:33:01"
+        },
+        {
+          "unit": "V",
+          "perm": 1,
+          "name": "voltage",
+          "value": 3.6000000000000001,
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "xbee_delivery_failed",
+          "value": 0,
+          "time": "None"
+        }
+      ],
+      "name": "DMS144007645"
+    },
+    {
+      "channels": [
+        {
+          "unit": "",
+          "perm": 5,
+          "name": "APN",
+          "value": 0,
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "network_sleep",
+          "value": "AWAKE",
+          "time": "2018-08-15 18:08:00"
+        },
+        {
+          "unit": "",
+          "perm": 2,
+          "name": "reset_debug",
+          "value": 0,
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 5,
+          "name": "reset_debug_done",
+          "value": "Unknown",
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "sample_timeout",
+          "value": "00:13:A2:00:40:D8:99:BD!",
+          "time": "2018-08-15 17:32:28"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "total_failures",
+          "value": 4,
+          "time": "2018-08-15 17:32:28"
+        },
+        {
+          "unit": "",
+          "perm": 1,
+          "name": "xbee_delivery_failed",
+          "value": "",
+          "time": "None"
+        }
+      ],
+      "name": "collect_drv0"
+    },
+    {
+      "channels": [
+        {
+          "unit": "ms",
+          "perm": 1,
+          "name": "sleep_time",
+          "value": 10000,
+          "time": "2018-08-15 17:31:50"
+        },
+        {
+          "unit": "ms",
+          "perm": 1,
+          "name": "wake_time",
+          "value": 40000,
+          "time": "2018-08-15 17:31:50"
+        }
+      ],
+      "name": "digimesh_device_manager0"
+    },
+    {
+      "channels": [
+        {
+          "unit": "",
+          "perm": 6,
+          "name": "upload_samples",
+          "value": 0,
+          "time": "None"
+        },
+        {
+          "unit": "",
+          "perm": 6,
+          "name": "upload_snapshot",
+          "value": 0,
+          "time": "None"
+        }
+      ],
+      "name": "edp_upload0"
+    }
+  ],
+  "settings": {
+    "polling": 0
+  }
+}
