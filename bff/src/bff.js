@@ -7,6 +7,8 @@ const path = require('path')
 const fs = require('fs')
 // const jsonParser = require('body-parser').json()
 
+const MeterSettings = require('./lib/meterSettings')
+
 const defaultConfig = {
   performance: {
     maxSockets: 500
@@ -14,7 +16,8 @@ const defaultConfig = {
   port: 8080,
   http_timeout_seconds: 120,
   meter: {
-    readingFilePath: path.join(__dirname, '../data/reading1.json')
+    // readingFilePath: path.join(__dirname, '../data/reading1.json')
+    readingFilePath: path.join(__dirname, '../data/reading1.modified.pretty.json')
   }
 }
 
@@ -22,6 +25,7 @@ class BFF {
   constructor ({ config = defaultConfig } = {}) {
     this.config = config
     this.express = express()
+    this.meterSettings = new MeterSettings()
 
     if (_.has(this.config, 'bff.max_outbound_sockets')) {
       http.globalAgent.maxSockets = this.config.performance.maxSockets
@@ -45,12 +49,50 @@ class BFF {
       res.send(JSON.stringify({ status: 'ok'}))
     })
 
-    this.express.get('/server/meter/reading', (req, res) => {
+    this.express.get('/server/meter/water-rates', (req, res) => {
       try {
         const meterReading = JSON.parse(this._readFileContents(this.config.meter.readingFilePath))
+
+        const pulseCounterRows = _(meterReading.devices)
+          .flatMap(({ name: deviceName, channels }) => {
+            return _.map(channels, channel => {
+              return {
+                deviceName: deviceName,
+                channelName: channel.name,
+                deviceChannelId: `${deviceName}-${channel.name}`,
+                displayName: `${deviceName}-${channel.name}`,
+                litresPerPulse: 1,
+                pulses: channel.value,
+                time: channel.time
+              }
+            })
+          })
+          .filter(({channelName}) => channelName.match('^pulse_counter_.'))
+          .value()
+
+        const uniqueDeviceChannelIds = _(pulseCounterRows)
+          .map('deviceChannelId')
+          .value()
+
+        const litresPerPulseValues = this.meterSettings.bulkGetDeviceChannelField('liters_per_pulse', uniqueDeviceChannelIds)
+
+        const modifiedPulseCounterRows = _(pulseCounterRows)
+          .map(pulseCounterRow => {
+            if (_.has(litresPerPulseValues, pulseCounterRow.deviceChannelId)) {
+              pulseCounterRow.litresPerPulse = litresPerPulseValues[pulseCounterRow.deviceChannelId]
+            }
+            return pulseCounterRow
+          })
+          .value()
+
+
+        console.log('modifiedPulseCounterRows')
+        console.log(JSON.stringify(modifiedPulseCounterRows, {}, 2))
+
+
         res.status(200)
         res.header('content-type', 'application/json')
-        res.send(JSON.stringify(meterReading))
+        res.send(JSON.stringify(modifiedPulseCounterRows))
       } catch (error) {
         error.message = `/meter/reading failed parsing file ${this.config.meter.readingFilePath}: ${error.message}`
         throw error

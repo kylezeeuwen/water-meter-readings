@@ -14,18 +14,18 @@
                     <td class="device-display-name">Display Name</td>
                     <td class="device-id">Logger</td>
                     <td class="last-reading">Last Reading</td>
-                    <td class="device-id">Litres / Pulse</td>
-                    <td class="device-id">Reading (KL)</td>
+                    <td class="litres-per-pulse">Litres / Pulse</td>
+                    <td class="reading">Reading (KL)</td>
                 </tr>
             </thead>
             <tbody>
               {{#rows}}
                 <tr>
-                    <td class="device-display-name">TODO</td>
-                    <td class="device-channel-id">{{deviceChannelName}}</td>
+                    <td class="device-display-name">{{displayName}}</td>
+                    <td class="device-channel-id">{{deviceChannelId}}</td>
                     <td class="last-reading">{{time}}</td>
-                    <td class="device-id">1</td>
-                    <td class="device-id">{{reading}}</td>
+                    <td class="litres-per-pulse">{{litresPerPulse}}</td>
+                    <td class="reading">{{reading}}</td>
                  </tr>
               {{/rows}}
             </tbody>
