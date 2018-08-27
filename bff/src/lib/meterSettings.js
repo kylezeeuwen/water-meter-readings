@@ -10,14 +10,14 @@ const _ = require('lodash')
 // }
 
 class MeterSettings {
-  constructor (initialSettings = { deviceChannels: { 'DMS144007645-pulse_counter_4': { liters_per_pulse: 4 }} }) {
+  constructor (initialSettings = { deviceChannels: {} }) {
     this.settings = initialSettings
   }
 
   bulkGetDeviceChannelField (fieldName, deviceChannelIds) {
     const response = {}
     _(deviceChannelIds).each(deviceChannelId => {
-      if (_.has(this.settings.deviceChannels, deviceChannelId)) {
+      if (_.has(this.settings.deviceChannels, `${deviceChannelId}.${fieldName}`)) {
         response[deviceChannelId] = this.settings.deviceChannels[deviceChannelId][fieldName]
       }
     })

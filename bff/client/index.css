@@ -4,3 +4,19 @@
     border: 1px solid lightblue;
     padding: 15px;
 }
+
+tr.saving td.save input {
+    display:none;
+}
+
+tr.saving .saving-text {
+    display:block;
+}
+
+.saving-text {
+    display: none
+}
+
+.error-text {
+    color: red;
+}

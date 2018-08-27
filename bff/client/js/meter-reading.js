@@ -1,3 +1,9 @@
+const timings = {
+  showErrorsFor: 2000,
+  displaySavingForAtLeast: 100,
+  afterSuccessDelayReloadFor: 1250
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   fetch('/server/meter/water-rates', {})
     .then(response => {
@@ -13,12 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
           })
           .value()
 
-        console.log('tableRows')
-        console.log(JSON.stringify(tableRows, {}, 2))
-
-        var template = $('#table-body').html()
+        const template = $('#table-body').html()
         Mustache.parse(template)
-        var rendered = Mustache.render(template, { rows:  tableRows })
+        const rendered = Mustache.render(template, { rows:  tableRows })
         $('#table-container').html(rendered)
 
         $('input.save').click((event) => {
@@ -34,17 +37,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
           const updatePromises = []
           if (displayNameNewValue !== displayNameOriginalValue) {
-            updatePromises.push(fetch(`/server/device-channels/${deviceChannelId}/update-display-name`, {
+            const updatePromise = fetch(`/server/device-channels/${deviceChannelId}/update-display-name`, {
               method: 'POST',
               headers: {
                 'content-type': 'application/json'
               },
-              body: JSON.stringify({ displayName: displayNameNewValue })
-            }))
+              body: JSON.stringify({ value: displayNameNewValue })
+            }).catch(error => {
+              displayNameInput.value('POOP')
+              throw error
+            })
+            updatePromises.push(updatePromise)
+          }
+          if (litresPerPulseNewValue !== litresPerPulseOriginalValue) {
+            const updatePromise = fetch(`/server/device-channels/${deviceChannelId}/update-litres-per-pulse`, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json'
+              },
+              body: JSON.stringify({ value: litresPerPulseNewValue })
+            }).catch(error => {
+              litresPerPulseInput.value('POOP')
+              throw error
+            })
+            updatePromises.push(updatePromise)
           }
 
+          if (updatePromises.length > 0) {
+            const row = $(`tr[data-device-channel-id="${deviceChannelId}"]`)
+            row.addClass('saving')
+            Promise.all(updatePromises)
+              .then((responses) => {
+                const success = _.every(responses, ({status}) => status === 200)
+                if (success) {
+                  setTimeout(() => { window.location = '/client' }, timings.afterSuccessDelayReloadFor)
+                } else {
+                  const failedResponses = responses.filter(({status}) => status !== 200)
+                  Promise.all(failedResponses.map(response => response.json()))
+                    .then(bodies => bodies.map(body => body.message).join(', '))
+                    .then(errorMessage => {
+                      displayErrorOnRow(deviceChannelId, errorMessage)
+                    })
+                    .catch(() => {
+                      displayErrorOnRow(deviceChannelId, 'unknown error')
+                    })
+                }
+
+
+              })
+              .catch((error) => { console.log('updates failed:', error) })
+              .finally(() => {
+                setTimeout(() => {
+                  row.removeClass('saving')
+                }, timings.displaySavingForAtLeast)
+              })
+          }
         })
       })
     })
-
 })
+
+function delay(t, v) {
+  return new Promise(function(resolve) {
+    setTimeout(resolve.bind(null, v), t)
+  });
+}
+
+function displayErrorOnRow (deviceChannelId, errorMessage) {
+  const errorDiv = $(`tr[data-device-channel-id="${deviceChannelId}"] div.error-text`)
+  errorDiv.html(errorMessage)
+  setTimeout(() => {
+    errorDiv.html('')
+  }, timings.showErrorsFor)
+}

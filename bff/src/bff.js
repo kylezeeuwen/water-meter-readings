@@ -5,7 +5,7 @@ const express = require('express')
 const http = require('http')
 const path = require('path')
 const fs = require('fs')
-// const jsonParser = require('body-parser').json()
+const jsonParser = require('body-parser').json()
 
 const MeterSettings = require('./lib/meterSettings')
 
@@ -74,21 +74,21 @@ class BFF {
           .map('deviceChannelId')
           .value()
 
-        const litresPerPulseValues = this.meterSettings.bulkGetDeviceChannelField('liters_per_pulse', uniqueDeviceChannelIds)
+        // TODO should combine these into one
+        const litresPerPulseValues = this.meterSettings.bulkGetDeviceChannelField('litresPerPulse', uniqueDeviceChannelIds)
+        const displayNameValues = this.meterSettings.bulkGetDeviceChannelField('displayName', uniqueDeviceChannelIds)
 
         const modifiedPulseCounterRows = _(pulseCounterRows)
           .map(pulseCounterRow => {
             if (_.has(litresPerPulseValues, pulseCounterRow.deviceChannelId)) {
               pulseCounterRow.litresPerPulse = litresPerPulseValues[pulseCounterRow.deviceChannelId]
             }
+            if (_.has(displayNameValues, pulseCounterRow.deviceChannelId)) {
+              pulseCounterRow.displayName = displayNameValues[pulseCounterRow.deviceChannelId]
+            }
             return pulseCounterRow
           })
           .value()
-
-
-        console.log('modifiedPulseCounterRows')
-        console.log(JSON.stringify(modifiedPulseCounterRows, {}, 2))
-
 
         res.status(200)
         res.header('content-type', 'application/json')
@@ -99,8 +99,35 @@ class BFF {
       }
     })
 
-    this.express.post(`/server/device-channels/:deviceChannelId/update-display-name`, (req, res) => {
-      console.log('got a post')
+    this.express.post(`/server/device-channels/:deviceChannelId/update-display-name`, jsonParser, (req, res) => {
+      const deviceChannelId = _.get(req, 'params.deviceChannelId', false)
+      const displayName = _.get(req, 'body.value', false)
+
+      // NB !deviceChannelId should not ever happen (cannot get here unless deviceChannelId in path
+      if (!deviceChannelId) {this._sendValidationError(res,'missing deviceChannelId')}
+      else if (!displayName) {this._sendValidationError(res,'missing value in request body')}
+      else if (_.isEmpty(displayName)) {this._sendValidationError(res,'value cannot be empty')}
+      else {
+        this.meterSettings.setDeviceChannelField(deviceChannelId, 'displayName', displayName)
+        res.status(200)
+        res.send()
+      }
+    })
+
+    this.express.post(`/server/device-channels/:deviceChannelId/update-litres-per-pulse`, jsonParser, (req, res) => {
+      const deviceChannelId = _.get(req, 'params.deviceChannelId', false)
+      const litresPerPulse = parseFloat(_.get(req, 'body.value', false))
+
+      // NB !deviceChannelId should not ever happen (cannot get here unless deviceChannelId in path
+      if (!deviceChannelId) {this._sendValidationError(res,'missing deviceChannelId')}
+      else if (!litresPerPulse) {this._sendValidationError(res,'missing value in request body')}
+      else if (_.isNaN(litresPerPulse)) {this._sendValidationError(res,'value is not a valid number')}
+      else if (litresPerPulse < 0) {this._sendValidationError(res,'value cannot be negative')}
+      else {
+        this.meterSettings.setDeviceChannelField(deviceChannelId, 'litresPerPulse', litresPerPulse)
+        res.status(200)
+        res.send()
+      }
     })
   }
 
@@ -116,7 +143,7 @@ class BFF {
         message
       })
 
-      const responseBody = { message: 'server error. See server log for details' }
+      const responseBody = {message: 'server error. See server log for details'}
       res.status(500)
       res.header('content-type', 'application/json')
       res.send(JSON.stringify(responseBody))
@@ -167,6 +194,11 @@ class BFF {
     }
 
     return fileContents
+  }
+
+  _sendValidationError (res, message) {
+    res.status(400)
+    res.send(JSON.stringify({message}))
   }
 }
 
