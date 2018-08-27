@@ -1,3 +1,4 @@
-node_modules
+.idea
 .tmp
 bff/data/meter-settings.json
+node_modules
