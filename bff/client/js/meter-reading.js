@@ -1,7 +1,6 @@
 const timings = {
   showErrorsFor: 2000,
-  displaySavingForAtLeast: 100,
-  afterSuccessDelayReloadFor: 1250
+  displaySavingForAtLeast: 100
 }
 
 document.addEventListener('DOMContentLoaded', function() {

@@ -17,7 +17,8 @@ const defaultConfig = {
   http_timeout_seconds: 120,
   meter: {
     // readingFilePath: path.join(__dirname, '../data/reading1.json')
-    readingFilePath: path.join(__dirname, '../data/reading1.modified.pretty.json')
+    readingFilePath: path.join(__dirname, '../data/reading1.modified.pretty.json'),
+    settingsFilePath: path.join(__dirname, '../data/meter-settings.json'),
   }
 }
 
@@ -25,11 +26,26 @@ class BFF {
   constructor ({ config = defaultConfig } = {}) {
     this.config = config
     this.express = express()
-    this.meterSettings = new MeterSettings()
+    this.initialiseMeterSettings()
 
     if (_.has(this.config, 'bff.max_outbound_sockets')) {
       http.globalAgent.maxSockets = this.config.performance.maxSockets
     }
+  }
+
+  initialiseMeterSettings () {
+    const meterSettingsConfig = {
+      settingsFilePath: this.config.meter.settingsFilePath,
+    }
+    if (fs.existsSync(this.config.meter.settingsFilePath)) {
+      try {
+        meterSettingsConfig.initialSettings = JSON.parse(this._readFileContents(this.config.meter.settingsFilePath))
+      } catch (error) {
+        console.log({ eventType: 'meterSettingsFileReadFail', stack_trace: _.get(error, 'stack'), message: _.get(error, 'message') })
+        // NB TODO could delete file here to clear bad state, but this is dangerous and might not be right action in all cases
+      }
+    }
+    this.meterSettings = new MeterSettings(meterSettingsConfig)
   }
 
   start () {

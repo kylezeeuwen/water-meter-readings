@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const fs = require('fs')
 
 // settings data format
 // {
@@ -8,10 +9,22 @@ const _ = require('lodash')
 //     }
 //   }
 // }
+const defaultInitialSettings = { deviceChannels: {} }
+
 
 class MeterSettings {
-  constructor (initialSettings = { deviceChannels: {} }) {
-    this.settings = initialSettings
+  constructor ({ initialSettings = defaultInitialSettings, settingsFilePath = null } = {}) {
+    if (this.validateInitialSettings(initialSettings)) {
+      this.settings = initialSettings
+    } else {
+      console.log({ eventType: 'meterSettingsValidationFail' })
+      this.settings = defaultInitialSettings
+    }
+    this.settingsFilePath = settingsFilePath
+  }
+
+  validateInitialSettings (initialSettings) {
+    return true
   }
 
   bulkGetDeviceChannelField (fieldName, deviceChannelIds) {
@@ -29,6 +42,12 @@ class MeterSettings {
       this.settings.deviceChannels[deviceChannelId] = {}
     }
     this.settings.deviceChannels[deviceChannelId][fieldName] = fieldValue
+    this.writeSettings()
+  }
+
+  writeSettings () {
+    if (_.isNull(this.settingsFilePath)) { return }
+    fs.writeFileSync(this.settingsFilePath, JSON.stringify(this.settings), 'utf8')
   }
 }
 
