@@ -5,6 +5,25 @@
     padding: 15px;
 }
 
+#table-container input[type="text"] {
+    border-color: rgb(145, 151, 163);
+    border-radius: 3px;
+    border-width: 1px;
+    box-shadow: rgba(0, 0, 0, 0.075) 0px 1px 1px 0px inset;
+    box-sizing: border-box;
+    padding: 4px;
+}
+
+td.save input[type="button"] {
+    border-color: rgb(145, 151, 163);
+    border-radius: 3px;
+    border-width: 1px;
+    box-shadow: rgba(0, 0, 0, 0.075) 0px 1px 1px 0px inset;
+    box-sizing: border-box;
+    padding: 4px;
+    background-color: lightblue;
+}
+
 tr.saving td.save input {
     display:none;
 }
@@ -20,3 +39,11 @@ tr.saving .saving-text {
 .error-text {
     color: red;
 }
+
+td.device-display-name { width: 25%; }
+td.device-id { width: auto; }
+td.last-reading { width: 20%; }
+td.litres-per-pulse { width: 5%; max-width: 75px; }
+td.litres-per-pulse input { max-width: 75px; }
+td.reading { width: 5%; }
+td.save { width: 7%; }

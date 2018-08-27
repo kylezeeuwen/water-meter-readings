@@ -10,19 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
       const error = response.status > 399
       if (error) { console.log(`meter reading http responded with ${response.status}. Aborting`)}
 
-      return response.json().then(body => {
-
-        const tableRows = _(body)
-          .map(row => {
-            row.reading = row.pulses * row.litresPerPulse / 1000
-            return row
-          })
-          .value()
-
+      return response.json().then(tableRows => {
         const template = $('#table-body').html()
         Mustache.parse(template)
         const rendered = Mustache.render(template, { rows:  tableRows })
         $('#table-container').html(rendered)
+        _(tableRows).each(({deviceChannelId}) => updateReadingCell({deviceChannelId}))
 
         $('input.save').click((event) => {
           const deviceChannelId = event.target.dataset['deviceChannelId']
