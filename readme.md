@@ -1,6 +1,21 @@
-# Use case
 
-Given a http hosted static json file, display something that looks like [assets/acceptance_criteria1.png](assets/acceptance_criteria1.png)
+# Installation
+NB Tested with node 8.9.4 on OSX 10.13.6. No other environments tested yet 
+
+## Prerequisites
+
+* node
+
+## Instructions
+
+* in local repo directory, run `npm install`
+* start server via `node bff/src/startServer.js`
+* visit `http://localhost:8080/client/` , `http://localhost:8080/server/health`, and/or `http://localhost:8080/server/meter/water-rates`
+
+
+# Initial Acceptance Criteria
+
+Given a http hosted static json file [bff/data/reading1.json](bff/data/reading1.json), display something that looks like [assets/acceptance_criteria1.png](assets/acceptance_criteria1.png)
 
 hours : 6
 
