@@ -41,9 +41,11 @@ tr.saving .saving-text {
 }
 
 td.device-display-name { width: 25%; }
+td.device-display-name input { width: 100%; }
 td.device-id { width: auto; }
 td.last-reading { width: 20%; }
 td.litres-per-pulse { width: 5%; max-width: 75px; }
-td.litres-per-pulse input { max-width: 75px; }
+td.litres-per-pulse input { width: 100%; }
 td.reading { width: 5%; }
 td.save { width: 7%; }
+td.save input { width: 100%; }
