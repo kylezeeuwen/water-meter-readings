@@ -37,55 +37,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
           const updatePromises = []
           if (displayNameNewValue !== displayNameOriginalValue) {
-            const updatePromise = fetch(`/server/device-channels/${deviceChannelId}/update-display-name`, {
-              method: 'POST',
-              headers: {
-                'content-type': 'application/json'
-              },
-              body: JSON.stringify({ value: displayNameNewValue })
-            }).catch(error => {
-              displayNameInput.value('POOP')
-              throw error
-            })
-            updatePromises.push(updatePromise)
+            updatePromises.push(updateDisplayName({
+              deviceChannelId,
+              newValue: displayNameNewValue,
+              originalValue: displayNameOriginalValue,
+              inputElement: displayNameInput
+            }))
           }
+
           if (litresPerPulseNewValue !== litresPerPulseOriginalValue) {
-            const updatePromise = fetch(`/server/device-channels/${deviceChannelId}/update-litres-per-pulse`, {
-              method: 'POST',
-              headers: {
-                'content-type': 'application/json'
-              },
-              body: JSON.stringify({ value: litresPerPulseNewValue })
-            }).catch(error => {
-              litresPerPulseInput.value('POOP')
-              throw error
-            })
-            updatePromises.push(updatePromise)
+            updatePromises.push(updateLitresPerPulse({
+              deviceChannelId,
+              newValue: litresPerPulseNewValue,
+              originalValue: litresPerPulseOriginalValue,
+              inputElement: litresPerPulseInput
+            }))
           }
 
           if (updatePromises.length > 0) {
             const row = $(`tr[data-device-channel-id="${deviceChannelId}"]`)
             row.addClass('saving')
             Promise.all(updatePromises)
-              .then((responses) => {
-                const success = _.every(responses, ({status}) => status === 200)
-                if (success) {
-                  setTimeout(() => { window.location = '/client' }, timings.afterSuccessDelayReloadFor)
-                } else {
-                  const failedResponses = responses.filter(({status}) => status !== 200)
-                  Promise.all(failedResponses.map(response => response.json()))
-                    .then(bodies => bodies.map(body => body.message).join(', '))
-                    .then(errorMessage => {
-                      displayErrorOnRow(deviceChannelId, errorMessage)
-                    })
-                    .catch(() => {
-                      displayErrorOnRow(deviceChannelId, 'unknown error')
-                    })
-                }
-
-
-              })
-              .catch((error) => { console.log('updates failed:', error) })
               .finally(() => {
                 setTimeout(() => {
                   row.removeClass('saving')
@@ -96,6 +68,67 @@ document.addEventListener('DOMContentLoaded', function() {
       })
     })
 })
+
+function updateDisplayName ({ inputElement, deviceChannelId, newValue, originalValue }) {
+  return fetch(`/server/device-channels/${deviceChannelId}/update-display-name`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({ value: newValue })
+  })
+    .then(response => {
+      const success = response.status === 200
+      if (!success) {
+        inputElement.val(originalValue)
+        return response.json()
+          .then(body => body.message)
+          .then(errorMessage => {
+            displayErrorOnRow(deviceChannelId, errorMessage)
+          })
+      }
+    })
+    .catch(error => {
+      inputElement.val(originalValue)
+      displayErrorOnRow(deviceChannelId, 'unknown error')
+    })
+}
+
+function updateLitresPerPulse ({ inputElement, deviceChannelId, newValue, originalValue }) {
+  return fetch(`/server/device-channels/${deviceChannelId}/update-litres-per-pulse`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({ value: newValue })
+  })
+    .then(response => {
+      const success = response.status === 200
+      if (success) {
+        updateReadingCell({ deviceChannelId })
+      } else {
+        inputElement.val(originalValue)
+        return response.json()
+          .then(body => body.message)
+          .then(errorMessage => {
+            displayErrorOnRow(deviceChannelId, errorMessage)
+          })
+      }
+    })
+    .catch(error => {
+      inputElement.val(originalValue)
+      displayErrorOnRow(deviceChannelId, 'unknown error')
+    })
+}
+
+function updateReadingCell ({ deviceChannelId }) {
+  const pulses = parseFloat($(`tr[data-device-channel-id="${deviceChannelId}"] td.reading`)[0].dataset['pulses'])
+  const litresPerPulse = parseFloat($(`tr[data-device-channel-id="${deviceChannelId}"] input.litres-per-pulse`)[0].value)
+  const reading = pulses * litresPerPulse / 1000
+
+  $(`tr[data-device-channel-id="${deviceChannelId}"] td.reading`).html(reading)
+}
+
 
 function delay(t, v) {
   return new Promise(function(resolve) {

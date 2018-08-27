@@ -120,7 +120,6 @@ class BFF {
 
       // NB !deviceChannelId should not ever happen (cannot get here unless deviceChannelId in path
       if (!deviceChannelId) {this._sendValidationError(res,'missing deviceChannelId')}
-      else if (!litresPerPulse) {this._sendValidationError(res,'missing value in request body')}
       else if (_.isNaN(litresPerPulse)) {this._sendValidationError(res,'value is not a valid number')}
       else if (litresPerPulse < 0) {this._sendValidationError(res,'value cannot be negative')}
       else {
