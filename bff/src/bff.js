@@ -6,6 +6,7 @@ const http = require('http')
 const path = require('path')
 const fs = require('fs')
 const jsonParser = require('body-parser').json()
+const shell = require('shelljs')
 
 const MeterSettings = require('./lib/meterSettings')
 
@@ -19,6 +20,11 @@ const defaultConfig = {
     // readingFilePath: path.join(__dirname, '../data/reading1.json')
     readingFilePath: path.join(__dirname, '../data/reading1.modified.pretty.json'),
     settingsFilePath: path.join(__dirname, '../data/meter-settings.json'),
+  },
+  keyboard: {
+    // path: '/bin/date',
+    path: '/usr/bin/florence',
+    openCommand: '',
   }
 }
 
@@ -111,6 +117,21 @@ class BFF {
         res.send(JSON.stringify(modifiedPulseCounterRows))
       } catch (error) {
         error.message = `/meter/reading failed parsing file ${this.config.meter.readingFilePath}: ${error.message}`
+        throw error
+      }
+    })
+
+    this.express.post('/server/keyboard/show', (req, res) => {
+      try {
+        const result = shell.exec(`${this.config.keyboard.path} ${this.config.keyboard.openCommand}`)
+        console.log(`keyboard show command result.code:  ${result.code}`)
+        console.log(`keyboard show command result.stdout:  ${result.stdout}`)
+        console.log(`keyboard show command result.stderr:  ${result.stderr}`)
+        res.status(200)
+        res.header('content-type', 'application/json')
+        res.send(JSON.stringify(result))
+      } catch (error) {
+        error.message = `/server/keyboard/show failed: ${error.message}`
         throw error
       }
     })

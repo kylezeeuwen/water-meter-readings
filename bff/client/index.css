@@ -1,3 +1,8 @@
+
+#open-keyboard {
+    margin-bottom: 10px;
+}
+
 #table-container td {
     font-size: 17px;
     font-weight: 800;
@@ -14,7 +19,7 @@
     padding: 4px;
 }
 
-td.save input[type="button"] {
+input[type="button"] {
     border-color: rgb(145, 151, 163);
     border-radius: 3px;
     border-width: 1px;
