@@ -1,8 +1,14 @@
 const startTime = Date.now()
-const BFF = require('./bff')
+const BFF = require('../src/bff')
 const _ = require('lodash')
 
-const bff = new BFF()
+
+const argParser = require('yargs')
+const defaultConfig = require('../config/defaultConfig')
+const commandLineOverrides = argParser.argv
+const config = _.merge(defaultConfig, commandLineOverrides)
+
+const bff = new BFF(config)
 
 process.on('uncaughtException', function (error) {
   const stack_trace = _.get(error, 'stack')

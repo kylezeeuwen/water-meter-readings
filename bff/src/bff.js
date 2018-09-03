@@ -8,30 +8,15 @@ const fs = require('fs')
 const jsonParser = require('body-parser').json()
 const shell = require('shelljs')
 
+const NetworkFileStore = require('./lib/networkFileStore')
 const MeterSettings = require('./lib/meterSettings')
 
-const defaultConfig = {
-  performance: {
-    maxSockets: 500
-  },
-  port: 8080,
-  http_timeout_seconds: 120,
-  meter: {
-    // readingFilePath: path.join(__dirname, '../data/reading1.json')
-    readingFilePath: path.join(__dirname, '../data/reading1.modified.pretty.json'),
-    settingsFilePath: path.join(__dirname, '../data/meter-settings.json'),
-  },
-  keyboard: {
-    // path: '/bin/date',
-    path: '/usr/bin/florence',
-    openCommand: '',
-  }
-}
-
 class BFF {
-  constructor ({ config = defaultConfig } = {}) {
+  constructor (config = {}) {
     this.config = config
     this.express = express()
+
+    this.initialiseFileStore()
     this.initialiseMeterSettings()
 
     if (_.has(this.config, 'bff.max_outbound_sockets')) {
@@ -39,18 +24,20 @@ class BFF {
     }
   }
 
+  initialiseFileStore () {
+    if (this.config.fileStore.type === 'network') {
+      this.fileStore = new NetworkFileStore({url: this.config.fileStore.url})
+    } else {
+      throw new Error(`fileStore type '${this.fileStore.type}' not supported`)
+    }
+  }
+
   initialiseMeterSettings () {
     const meterSettingsConfig = {
-      settingsFilePath: this.config.meter.settingsFilePath,
+      fileStore: this.fileStore,
+      settingsFileName: this.config.fileStore.settingsFileName
     }
-    if (fs.existsSync(this.config.meter.settingsFilePath)) {
-      try {
-        meterSettingsConfig.initialSettings = JSON.parse(this._readFileContents(this.config.meter.settingsFilePath))
-      } catch (error) {
-        console.log({ eventType: 'meterSettingsFileReadFail', stack_trace: _.get(error, 'stack'), message: _.get(error, 'message') })
-        // NB TODO could delete file here to clear bad state, but this is dangerous and might not be right action in all cases
-      }
-    }
+
     this.meterSettings = new MeterSettings(meterSettingsConfig)
   }
 
@@ -72,9 +59,9 @@ class BFF {
     })
 
     this.express.get('/server/meter/water-rates', (req, res) => {
-      try {
-        const meterReading = JSON.parse(this._readFileContents(this.config.meter.readingFilePath))
-
+      this.fileStore.readFile(this.config.fileStore.readingsFileName)
+      .then(JSON.parse)
+      .then(meterReading => {
         const pulseCounterRows = _(meterReading.devices)
           .flatMap(({ name: deviceName, channels }) => {
             return _.map(channels, channel => {
@@ -96,43 +83,45 @@ class BFF {
           .map('deviceChannelId')
           .value()
 
-        // TODO should combine these into one
-        const litresPerPulseValues = this.meterSettings.bulkGetDeviceChannelField('litresPerPulse', uniqueDeviceChannelIds)
-        const displayNameValues = this.meterSettings.bulkGetDeviceChannelField('displayName', uniqueDeviceChannelIds)
+        return this.meterSettings.bulkGetDeviceChannelSettings(uniqueDeviceChannelIds)
+          .then(deviceChannelSettings => {
+            const modifiedPulseCounterRows = _(pulseCounterRows)
+              .map(pulseCounterRow => {
+                if (_.has(deviceChannelSettings, `${pulseCounterRow.deviceChannelId}.litresPerPulse`)) {
+                  pulseCounterRow.litresPerPulse = deviceChannelSettings[pulseCounterRow.deviceChannelId]['litresPerPulse']
+                }
+                if (_.has(deviceChannelSettings, `${pulseCounterRow.deviceChannelId}.displayName`)) {
+                  pulseCounterRow.displayName = deviceChannelSettings[pulseCounterRow.deviceChannelId]['displayName']
+                }
+                return pulseCounterRow
+              })
+              .value()
 
-        const modifiedPulseCounterRows = _(pulseCounterRows)
-          .map(pulseCounterRow => {
-            if (_.has(litresPerPulseValues, pulseCounterRow.deviceChannelId)) {
-              pulseCounterRow.litresPerPulse = litresPerPulseValues[pulseCounterRow.deviceChannelId]
-            }
-            if (_.has(displayNameValues, pulseCounterRow.deviceChannelId)) {
-              pulseCounterRow.displayName = displayNameValues[pulseCounterRow.deviceChannelId]
-            }
-            return pulseCounterRow
+            res.status(200)
+            res.header('content-type', 'application/json')
+            res.send(JSON.stringify(modifiedPulseCounterRows))
           })
-          .value()
-
-        res.status(200)
+      })
+      .catch(error => {
+        res.status(500)
+        console.log({ eventType: '/server/meter/water-rates failed', message: error.message, stack: error.stack })
         res.header('content-type', 'application/json')
-        res.send(JSON.stringify(modifiedPulseCounterRows))
-      } catch (error) {
-        error.message = `/meter/reading failed parsing file ${this.config.meter.readingFilePath}: ${error.message}`
-        throw error
-      }
+        res.send({ error: error.message, stack: error.stack })
+      })
     })
 
     this.express.post('/server/keyboard/show', (req, res) => {
       try {
         const result = shell.exec(`${this.config.keyboard.path} ${this.config.keyboard.openCommand}`)
-        console.log(`keyboard show command result.code:  ${result.code}`)
-        console.log(`keyboard show command result.stdout:  ${result.stdout}`)
-        console.log(`keyboard show command result.stderr:  ${result.stderr}`)
+        console.log({ eventType: '/server/keyboard/show command result', ...result })
         res.status(200)
         res.header('content-type', 'application/json')
         res.send(JSON.stringify(result))
       } catch (error) {
-        error.message = `/server/keyboard/show failed: ${error.message}`
-        throw error
+        res.status(500)
+        console.log({ eventType: '/server/keyboard/show failed', message: error.message, stack: error.stack })
+        res.header('content-type', 'application/json')
+        res.send({ error: error.message, stack: error.stack })
       }
     })
 
@@ -146,8 +135,16 @@ class BFF {
       else if (_.isEmpty(displayName)) {this._sendValidationError(res,'value cannot be empty')}
       else {
         this.meterSettings.setDeviceChannelField(deviceChannelId, 'displayName', displayName)
-        res.status(200)
-        res.send()
+          .then(() => {
+            res.status(200)
+            res.send()
+          })
+          .catch(error => {
+            res.status(500)
+            console.log({ eventType: `${req.path} failed`, message: error.message, stack: error.stack })
+            res.header('content-type', 'application/json')
+            res.send({ error: error.message, stack: error.stack })
+          })
       }
     })
 
@@ -161,8 +158,16 @@ class BFF {
       else if (litresPerPulse < 0) {this._sendValidationError(res,'value cannot be negative')}
       else {
         this.meterSettings.setDeviceChannelField(deviceChannelId, 'litresPerPulse', litresPerPulse)
-        res.status(200)
-        res.send()
+          .then(() => {
+            res.status(200)
+            res.send()
+          })
+          .catch(error => {
+            res.status(500)
+            console.log({ eventType: `${req.path} failed`, message: error.message, stack: error.stack })
+            res.header('content-type', 'application/json')
+            res.send({ error: error.message, stack: error.stack })
+          })
       }
     })
   }
@@ -170,19 +175,14 @@ class BFF {
   addCatchAllErrorHandlers () {
     this.express.use((error, req, res, next) => {
 
-      const stack_trace = _.get(error, 'stack')
+      const stack = _.get(error, 'stack')
       const message = _.get(error, 'message')
 
-      console.log({
-        eventType: 'generic-error-handler',
-        stack_trace,
-        message
-      })
+      console.log({eventType: 'generic-error-handler', stack, message})
 
-      const responseBody = {message: 'server error. See server log for details'}
       res.status(500)
       res.header('content-type', 'application/json')
-      res.send(JSON.stringify(responseBody))
+      res.send({ error, stack })
     })
   }
 
@@ -234,6 +234,7 @@ class BFF {
 
   _sendValidationError (res, message) {
     res.status(400)
+    res.header('content-type', 'application/json')
     res.send(JSON.stringify({message}))
   }
 }
