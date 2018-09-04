@@ -26,10 +26,10 @@
             <tbody>
               {{#rows}}
                 <tr data-device-channel-id="{{deviceChannelId}}">
-                    <td class="device-display-name"><input data-original-value={{displayName}} class="display-name" type="text" value="{{displayName}}"/></td>
+                    <td class="device-display-name"><input data-original-value="{{displayName}}" class="display-name" type="text" value="{{displayName}}"/></td>
                     <td class="device-channel-id">{{deviceChannelId}}</td>
                     <td class="last-reading">{{time}}</td>
-                    <td class="litres-per-pulse"><input data-original-value={{litresPerPulse}} class="litres-per-pulse" type="text" value="{{litresPerPulse}}"/></td>
+                    <td class="litres-per-pulse"><input data-original-value="{{litresPerPulse}}" class="litres-per-pulse" type="text" value="{{litresPerPulse}}"/></td>
                     <td class="reading" data-pulses="{{pulses}}">{{reading}}</td>
                     <td class="save">
                          <!--these two are shown/hidden using css by adding/removing a class on the tr -->
