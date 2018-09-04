@@ -1,4 +1,4 @@
-var afterDelayRedirectTo = '/client'
+var afterDelayRedirectTo = '/client/advanced-readings-page.html'
 var defaultDelayInSeconds = 10
 
 document.addEventListener('DOMContentLoaded', function() {

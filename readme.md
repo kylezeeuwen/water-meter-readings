@@ -11,7 +11,17 @@ NB Also tested with rasperry Pi
 
 * in local repo directory, run `npm install`
 * start server via `node server/src/startServer.js`
-* visit `http://localhost:8080/client/` , `http://localhost:8080/server/health`, and/or `http://localhost:8080/server/meter/water-rates`
+* visit client pages:
+
+    * `http://localhost:8080/client/startup.html`
+    * `http://localhost:8080/client`
+    * `http://localhost:8080/client/advanced-readings-page.html`
+    * `http://localhost:8080/client/simple-readings-page.html`
+    
+* visit server pages:
+ 
+    * `http://localhost:8080/server/health`
+    * `http://localhost:8080/server/meter/water-rates`
 
 ### Configuring the Server
 
