@@ -24,10 +24,14 @@ NB Also tested with rasperry Pi
 
 ### Configuring the Client
 
-TO configure the delay on the startup.html page, add a 'delay' query parameter:
+#### To configure the delay on the startup.html page, add a 'delay' query parameter:
 
 * `http://localhost/client/startup.html` will delay for 10 seconds then change browser to basic view 
 * `http://localhost/client/startup.html?delay=15` will delay for 15 seconds then change browser to basic view 
+
+#### To configure the auto reload delay on the meter readings pages:
+
+Small code change in [./bff/client/js/auto-reload.js](./bff/client/js/auto-reload.js) : change the value of the autoReloadDelayInMinutes var at top of file
 
 # Initial Acceptance Criteria
 
