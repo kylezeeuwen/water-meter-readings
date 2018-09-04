@@ -13,6 +13,21 @@ NB Also tested with rasperry Pi
 * start server via `node bff/src/startServer.js`
 * visit `http://localhost:8080/client/` , `http://localhost:8080/server/health`, and/or `http://localhost:8080/server/meter/water-rates`
 
+### Configuring the Server
+
+ Any variable in [./bff/config/defaultConfig.js](./bff/config/defaultConfig.js) can be overridden on the command line by providing a parameter. "nested" parameters can be overridden one at a time using dot notation:
+ 
+* Changing the location of the network filestore : `node bff/bin/startServer.js --fileStore.url='http://newlocation.com:8081'` 
+* Changing the path of the keyboard command : `node bff/bin/startServer.js --keyboard.path='/new/path'` 
+* Changing the port the server binds to : `node bff/bin/startServer.js --port='9000'` 
+* Changing multiple things: `node bff/bin/startServer.js --port='9000' --fileStore.url='http://newlocation.com:8081' --keyboard.path='/new/path'`
+
+### Configuring the Client
+
+TO configure the delay on the startup.html page, add a 'delay' query parameter:
+
+* `http://localhost/client/startup.html` will delay for 10 seconds then change browser to basic view 
+* `http://localhost/client/startup.html?delay=15` will delay for 15 seconds then change browser to basic view 
 
 # Initial Acceptance Criteria
 

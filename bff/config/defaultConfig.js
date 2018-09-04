@@ -5,8 +5,7 @@ module.exports = {
   port: 8080,
   http_timeout_seconds: 120,
   keyboard: {
-    path: '/usr/bin/florence',
-    openCommand: '',
+    path: '/usr/bin/florence'
   },
   fileStore: {
     type: 'network',
