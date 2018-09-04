@@ -1,5 +1,5 @@
 const startTime = Date.now()
-const BFF = require('../src/bff')
+const Server = require('../src/server')
 const _ = require('lodash')
 
 
@@ -8,7 +8,7 @@ const defaultConfig = require('../config/defaultConfig')
 const commandLineOverrides = argParser.argv
 const config = _.merge(defaultConfig, commandLineOverrides)
 
-const bff = new BFF(config)
+const server = new Server(config)
 
 process.on('uncaughtException', function (error) {
   const stack_trace = _.get(error, 'stack')
@@ -18,10 +18,10 @@ process.on('uncaughtException', function (error) {
   process.exit(1)
 })
 
-bff.start().then(function () {
-  console.log({ eventType: 'bff-start', message: `${new Date()} : BFF started in ${Date.now() - startTime}ms` })
+server.start().then(function () {
+  console.log({ eventType: 'server-start', message: `${new Date()} : BFF started in ${Date.now() - startTime}ms` })
 }).catch(function (error) {
   const stack_trace = _.get(error, 'stack')
   const message = _.get(error, 'message')
-  console.log({ eventType: 'bff-start-failure', message, stack_trace })
+  console.log({ eventType: 'server-start-failure', message, stack_trace })
 })

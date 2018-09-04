@@ -1,5 +1,5 @@
 .idea
 .tmp
-bff/data/meter-settings.json
-bff/data/upload
+server/data/meter-settings.json
+server/data/upload
 node_modules

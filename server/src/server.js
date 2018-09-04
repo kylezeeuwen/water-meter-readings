@@ -11,7 +11,7 @@ const shell = require('shelljs')
 const NetworkFileStore = require('./lib/networkFileStore')
 const MeterSettings = require('./lib/meterSettings')
 
-class BFF {
+class Server {
   constructor (config = {}) {
     this.config = config
     this.express = express()
@@ -26,7 +26,7 @@ class BFF {
     this.initialiseFileStore()
     this.initialiseMeterSettings()
 
-    if (_.has(this.config, 'bff.max_outbound_sockets')) {
+    if (_.has(this.config, 'server.max_outbound_sockets')) {
       http.globalAgent.maxSockets = this.config.performance.maxSockets
     }
 
@@ -127,7 +127,7 @@ class BFF {
         res.send()
         return
       }
-      
+
       try {
         this.throttling.lastKeyboardOpenCommand = Date.now()
         shell.exec(this.config.keyboard.path, function(code, stdout, stderr) {
@@ -257,4 +257,4 @@ class BFF {
   }
 }
 
-module.exports = BFF
+module.exports = Server
