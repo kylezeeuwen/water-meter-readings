@@ -8,4 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
       body: JSON.stringify({})
     })
   })
+
+  $('#reload-page').click(() => {
+    window.location.reload()
+  })
 })

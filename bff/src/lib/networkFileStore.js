@@ -25,7 +25,7 @@ class NetworkFileStore {
       request(fullUrl, function (error, response, body) {
         if (error) {
           console.log({ eventType: 'network_file_get_fail', fileName, error })
-          error.message(`Fail to retrieve ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`)
+          error.message = `Fail to retrieve ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`
           return reject(error)
         } else if (response && response.statusCode === 404) {
           console.log({ eventType: 'network_file_get_fail', fileName, code: response.statusCode })
@@ -80,7 +80,7 @@ class NetworkFileStore {
       var req = request.post(fullUrl, function (error, response, body) {
         if (error) {
           console.log({ eventType: 'network_file_set_fail', fileName, error })
-          error.message(`Fail to upload ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`)
+          error.message = `Fail to upload ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`
           return reject(error)
         } else if (response && response.statusCode != 303) {
           console.log({ eventType: 'network_file_set_fail', fileName, code: response.statusCode, fileContent })

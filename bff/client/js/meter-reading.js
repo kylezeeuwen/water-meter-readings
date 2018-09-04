@@ -7,7 +7,12 @@ document.addEventListener('DOMContentLoaded', function() {
   fetch('/server/meter/water-rates', {})
     .then(response => {
       const error = response.status > 399
-      if (error) { console.log(`meter reading http responded with ${response.status}. Aborting`)}
+      if (error) {
+        console.log(`meter reading http responded with ${response.status}. Aborting`)
+        $('#error-container').addClass('errors')
+        $('#error-container').html('Cannot get readings. Reload page')
+        return
+      }
 
       return response.json().then(tableRows => {
         const template = $('#table-body').html()
