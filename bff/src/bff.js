@@ -16,12 +16,21 @@ class BFF {
     this.config = config
     this.express = express()
 
+    // opening the keyboard too many times causes issues
+    const minKeyboardOpenRequestInterval = 2000
+    this.throttling = {
+      lastKeyboardOpenCommand: Date.now() - minKeyboardOpenRequestInterval,
+      minKeyboardOpenRequestInterval
+    }
+
     this.initialiseFileStore()
     this.initialiseMeterSettings()
 
     if (_.has(this.config, 'bff.max_outbound_sockets')) {
       http.globalAgent.maxSockets = this.config.performance.maxSockets
     }
+
+    require('events').EventEmitter.prototype._maxListeners = 100
   }
 
   initialiseFileStore () {
@@ -111,12 +120,21 @@ class BFF {
     })
 
     this.express.post('/server/keyboard/show', (req, res) => {
-      try {
-        const result = shell.exec(`${this.config.keyboard.path} ${this.config.keyboard.openCommand}`)
-        console.log({ eventType: '/server/keyboard/show command result', ...result })
+
+      if (Date.now() < this.throttling.lastKeyboardOpenCommand + this.throttling.minKeyboardOpenRequestInterval) {
+        console.log({ eventType: 'throttling open keyboard request' })
         res.status(200)
-        res.header('content-type', 'application/json')
-        res.send(JSON.stringify(result))
+        res.send()
+        return
+      }
+      
+      try {
+        this.throttling.lastKeyboardOpenCommand = Date.now()
+        shell.exec(this.config.keyboard.path, function(code, stdout, stderr) {
+          console.log({ eventType: '/server/keyboard/show command result', code, stdout, stderr })
+        })
+        res.status(200)
+        res.send()
       } catch (error) {
         res.status(500)
         console.log({ eventType: '/server/keyboard/show failed', message: error.message, stack: error.stack })
