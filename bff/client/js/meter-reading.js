@@ -116,7 +116,7 @@ function updateLitresPerPulse ({ inputElement, deviceChannelId, newValue, origin
 function updateReadingCell ({ deviceChannelId }) {
   const pulses = parseFloat($(`tr[data-device-channel-id="${deviceChannelId}"] td.reading`)[0].dataset['pulses'])
   const litresPerPulse = parseFloat($(`tr[data-device-channel-id="${deviceChannelId}"] input.litres-per-pulse`)[0].value)
-  const reading = pulses * litresPerPulse / 1000
+  const reading = (pulses * litresPerPulse / 1000).toFixed(2)
 
   $(`tr[data-device-channel-id="${deviceChannelId}"] td.reading`).html(reading)
 }
