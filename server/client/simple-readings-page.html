@@ -3,13 +3,12 @@
         <script src="/client/js/dependencies/jquery-3.3.1.min.js"></script>
         <script src="/client/js/dependencies/lodash-4.17.10.min.js"></script>
         <script src="/client/js/dependencies/mustache-2.3.2.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="/client/advanced-readings-page.css" />
+        <link rel="stylesheet" type="text/css" href="/client/simple-readings-page.css" />
     </head>
     <body>
         <div id="actions-container">
-            <input id="open-keyboard" type="button" value="Open Keyboard"/>
             <input id="reload-page" type="button" value="Reload Page"/>
-            <input id="goto-simple-view" type="button" value="Simple View"/>
+            <input id="goto-advanced-view" type="button" value="Edit"/>
         </div>
         <h2 id="error-container"></h2>
         <div id="table-container"></div>
@@ -20,28 +19,19 @@
             <thead>
                 <tr>
                     <td class="device-display-name">Display Name</td>
-                    <td class="device-id">Logger</td>
                     <td class="last-reading">Last Reading</td>
-                    <td class="litres-per-pulse">Litres / Pulse</td>
                     <td class="reading">Reading (KL)</td>
-                    <td class="save"></td>
                 </tr>
             </thead>
             <tbody>
               {{#rows}}
                 <tr data-device-channel-id="{{deviceChannelId}}">
-                    <td class="device-display-name"><input data-original-value="{{displayName}}" class="display-name" type="text" value="{{displayName}}"/></td>
-                    <td class="device-channel-id">{{deviceChannelId}}</td>
+                    <!-- This hidden litres per pulse is here to make the shared meter-reading.js:updateReadingCell function keep working -->
+                    <td style="display:none" class="litres-per-pulse"><input data-original-value="{{litresPerPulse}}" class="litres-per-pulse" type="text" value="{{litresPerPulse}}"/></td>
+                    <td class="device-display-name">{{displayName}}</td>
                     <td class="last-reading">{{time}}</td>
-                    <td class="litres-per-pulse"><input data-original-value="{{litresPerPulse}}" class="litres-per-pulse" type="text" value="{{litresPerPulse}}"/></td>
                     <td class="reading" data-pulses="{{pulses}}">{{reading}}</td>
-                    <td class="save">
-                         <!--these two are shown/hidden using css by adding/removing a class on the tr -->
-                        <input data-device-channel-id="{{deviceChannelId}}" class="save" type="button" value="Save"></input>
-                        <div class='saving-text'>Saving...</div>
-                        <div class='error-text'></div>
-                    </td>
-                 </tr>
+                </tr>
               {{/rows}}
             </tbody>
         </script>

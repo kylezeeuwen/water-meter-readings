@@ -12,4 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
   $('#reload-page').click(() => {
     window.location.reload()
   })
+
+  $('#goto-simple-view').click(() => {
+    window.location = '/client/simple-readings-page.html'
+  })
+
+  $('#goto-advanced-view').click(() => {
+    window.location = '/client/advanced-readings-page.html'
+  })
 })
