@@ -41,7 +41,7 @@ class MeterSettings {
           this.settings = _.cloneDeep(defaultInitialSettings)
           return this.writeSettings()
         } else {
-          return _delay(5000).then(() => this._readSettingsFile())
+          return _delay(5000).then(() => this.getInitialSettingsReading())
         }
       })
   }
