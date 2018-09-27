@@ -1,0 +1,66 @@
+
+#actions-container {
+    margin-bottom: 10px;
+}
+
+#error-container {
+    display: none;
+    color: red;
+    font-size:36px;
+}
+
+#error-container.errors {
+    display: block;
+}
+
+#table-container td {
+    font-size: 17px;
+    font-weight: 800;
+    border: 1px solid lightblue;
+    padding: 15px;
+}
+
+#table-container input[type="text"] {
+    border-color: rgb(145, 151, 163);
+    border-radius: 3px;
+    border-width: 1px;
+    box-shadow: rgba(0, 0, 0, 0.075) 0px 1px 1px 0px inset;
+    box-sizing: border-box;
+    padding: 4px;
+}
+
+input[type="button"] {
+    border-color: rgb(145, 151, 163);
+    border-radius: 3px;
+    border-width: 1px;
+    box-shadow: rgba(0, 0, 0, 0.075) 0px 1px 1px 0px inset;
+    box-sizing: border-box;
+    padding: 4px;
+    background-color: lightblue;
+}
+
+tr.saving td.save input {
+    display:none;
+}
+
+tr.saving .saving-text {
+    display:block;
+}
+
+.saving-text {
+    display: none
+}
+
+.error-text {
+    color: red;
+}
+
+td.device-display-name { width: 25%; }
+td.device-display-name input { width: 100%; }
+td.device-id { width: auto; }
+td.last-reading { width: 20%; }
+td.litres-per-pulse { width: 5%; max-width: 75px; }
+td.litres-per-pulse input { width: 100%; }
+td.reading { width: 5%; }
+td.save { width: 7%; }
+td.save input { width: 100%; }

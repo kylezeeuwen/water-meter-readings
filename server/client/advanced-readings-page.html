@@ -1,17 +1,21 @@
 <html>
     <head>
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.2/mustache.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="/client/index.css" />
+        <script src="/client/js/dependencies/jquery-3.3.1.min.js"></script>
+        <script src="/client/js/dependencies/lodash-4.17.10.min.js"></script>
+        <script src="/client/js/dependencies/mustache-2.3.2.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/client/advanced-readings-page.css" />
     </head>
     <body>
-        <div id="open-keyboard-container">
-            <input id="open-keyboard" type="button" value="Open Keyboard"></input>
+        <div id="actions-container">
+            <input id="open-keyboard" type="button" value="Open Keyboard"/>
+            <input id="reload-page" type="button" value="Reload Page"/>
+            <input id="goto-simple-view" type="button" value="Simple View"/>
         </div>
+        <h2 id="error-container"></h2>
         <div id="table-container"></div>
         <script src="/client/js/meter-reading.js"></script>
-        <script src="/client/js/bind-open-keyboard.js"></script>
+        <script src="/client/js/bind-actions.js"></script>
+        <script src="/client/js/auto-reload.js"></script>
         <script id="table-body" type="x-tmpl-mustache">
             <thead>
                 <tr>
@@ -26,10 +30,10 @@
             <tbody>
               {{#rows}}
                 <tr data-device-channel-id="{{deviceChannelId}}">
-                    <td class="device-display-name"><input data-original-value={{displayName}} class="display-name" type="text" value="{{displayName}}"/></td>
+                    <td class="device-display-name"><input data-original-value="{{displayName}}" class="display-name" type="text" value="{{displayName}}"/></td>
                     <td class="device-channel-id">{{deviceChannelId}}</td>
                     <td class="last-reading">{{time}}</td>
-                    <td class="litres-per-pulse"><input data-original-value={{litresPerPulse}} class="litres-per-pulse" type="text" value="{{litresPerPulse}}"/></td>
+                    <td class="litres-per-pulse"><input data-original-value="{{litresPerPulse}}" class="litres-per-pulse" type="text" value="{{litresPerPulse}}"/></td>
                     <td class="reading" data-pulses="{{pulses}}">{{reading}}</td>
                     <td class="save">
                          <!--these two are shown/hidden using css by adding/removing a class on the tr -->
@@ -42,9 +46,6 @@
             </tbody>
         </script>
     </body>
-
     <!DOCTYPE HTML>
-
-
 </html>
 

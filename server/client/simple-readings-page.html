@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <script src="/client/js/dependencies/jquery-3.3.1.min.js"></script>
+        <script src="/client/js/dependencies/lodash-4.17.10.min.js"></script>
+        <script src="/client/js/dependencies/mustache-2.3.2.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/client/simple-readings-page.css" />
+    </head>
+    <body>
+        <div id="actions-container">
+            <input id="reload-page" type="button" value="Reload Page"/>
+            <input id="goto-advanced-view" type="button" value="Edit"/>
+        </div>
+        <h2 id="error-container"></h2>
+        <div id="table-container"></div>
+        <script src="/client/js/meter-reading.js"></script>
+        <script src="/client/js/bind-actions.js"></script>
+        <script src="/client/js/auto-reload.js"></script>
+        <script id="table-body" type="x-tmpl-mustache">
+            <thead>
+                <tr>
+                    <td class="device-display-name">Display Name</td>
+                    <td class="last-reading">Last Reading</td>
+                    <td class="reading">Reading (KL)</td>
+                </tr>
+            </thead>
+            <tbody>
+              {{#rows}}
+                <tr data-device-channel-id="{{deviceChannelId}}">
+                    <!-- This hidden litres per pulse is here to make the shared meter-reading.js:updateReadingCell function keep working -->
+                    <td style="display:none" class="litres-per-pulse"><input data-original-value="{{litresPerPulse}}" class="litres-per-pulse" type="text" value="{{litresPerPulse}}"/></td>
+                    <td class="device-display-name">{{displayName}}</td>
+                    <td class="last-reading">{{time}}</td>
+                    <td class="reading" data-pulses="{{pulses}}">{{reading}}</td>
+                </tr>
+              {{/rows}}
+            </tbody>
+        </script>
+    </body>
+    <!DOCTYPE HTML>
+</html>
+

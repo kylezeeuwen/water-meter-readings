@@ -1,6 +1,16 @@
 
-#open-keyboard {
+#actions-container {
     margin-bottom: 10px;
+}
+
+#error-container {
+    display: none;
+    color: red;
+    font-size:36px;
+}
+
+#error-container.errors {
+    display: block;
 }
 
 #table-container td {
@@ -45,12 +55,6 @@ tr.saving .saving-text {
     color: red;
 }
 
-td.device-display-name { width: 25%; }
-td.device-display-name input { width: 100%; }
-td.device-id { width: auto; }
+td.device-display-name { width: 60%; }
 td.last-reading { width: 20%; }
-td.litres-per-pulse { width: 5%; max-width: 75px; }
-td.litres-per-pulse input { width: 100%; }
-td.reading { width: 5%; }
-td.save { width: 7%; }
-td.save input { width: 100%; }
+td.reading { width: 20%; }

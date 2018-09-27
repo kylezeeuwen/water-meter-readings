@@ -7,7 +7,12 @@ document.addEventListener('DOMContentLoaded', function() {
   fetch('/server/meter/water-rates', {})
     .then(response => {
       const error = response.status > 399
-      if (error) { console.log(`meter reading http responded with ${response.status}. Aborting`)}
+      if (error) {
+        console.log(`meter reading http responded with ${response.status}. Aborting`)
+        $('#error-container').addClass('errors')
+        $('#error-container').html('Cannot get readings. Reload page')
+        return
+      }
 
       return response.json().then(tableRows => {
         const template = $('#table-body').html()
@@ -116,7 +121,7 @@ function updateLitresPerPulse ({ inputElement, deviceChannelId, newValue, origin
 function updateReadingCell ({ deviceChannelId }) {
   const pulses = parseFloat($(`tr[data-device-channel-id="${deviceChannelId}"] td.reading`)[0].dataset['pulses'])
   const litresPerPulse = parseFloat($(`tr[data-device-channel-id="${deviceChannelId}"] input.litres-per-pulse`)[0].value)
-  const reading = pulses * litresPerPulse / 1000
+  const reading = (pulses * litresPerPulse / 1000).toFixed(2)
 
   $(`tr[data-device-channel-id="${deviceChannelId}"] td.reading`).html(reading)
 }
