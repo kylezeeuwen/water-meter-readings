@@ -59,6 +59,18 @@ class Server {
   }
 
   addRoutes () {
+    this.express.get('/', (req, res) => {
+      res.status(301)
+      res.header('location', '/client/simple-readings-page.html')
+      res.send()
+    })
+
+    this.express.get('/index.html', (req, res) => {
+      res.status(301)
+      res.header('location', '/client/simple-readings-page.html')
+      res.send()
+    })
+
     this.express.use('/client', express.static(path.join(__dirname, '../client')))
 
     this.express.use('/server/health', (req, res) => {

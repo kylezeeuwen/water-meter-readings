@@ -10,13 +10,14 @@ NB Also tested with rasperry Pi
 ## Instructions
 
 * in local repo directory, run `npm install`
-* start server via `node server/src/startServer.js`
+* start server via `node server/bin/startServer.js`
 * visit client pages:
 
-    * `http://localhost:8080/client/startup.html`
-    * `http://localhost:8080/client`
-    * `http://localhost:8080/client/advanced-readings-page.html`
-    * `http://localhost:8080/client/simple-readings-page.html`
+    * `http://localhost:8080` : will immediately redirect to simple readings page
+    * `http://localhost:8080/client` : will immediately redirect to simple readings page
+    * `http://localhost:8080/client/startup.html` : will say "App loading" with a countdown, and redirect to simple readings page in 10 seconds
+    * `http://localhost:8080/client/advanced-readings-page.html` : view and modify readings an settings
+    * `http://localhost:8080/client/simple-readings-page.html` : view only mode of readings
     
 * visit server pages:
  
@@ -49,20 +50,7 @@ Given a http hosted static json file [server/data/reading1.json](server/data/rea
 
 # Next steps
 
-* remove all server references
-* support command line parameter overrides for config file
-* ( 1 ) - add a startup page that delays for X then redirects to client/. Add better routes
-* ( 0.25 ) - limit decimals in reading (K.L)
-* ( 0.25 ) - 'meter 1' !== 'meter 1' cuz of spaces issue
-* ( 1-2 ) - interact with X4
-* ( 0.25 ) - on load read settings from network (always use the X4 for settings)
-* ( 0.25 ) - on save settings write settings file to the network
-* ( 0.25 ) - get readings from network
 * ( 1-2  ) - I need to make the initial reading editable, and report KL readings using new equation, and detect pulse overflow
-* ( 0.25 ) - refresh logic:
-  ** button to refresh browser
-  ** auto refresh browser every X minutes
-* ( 0.5 ) - no external internet (pull in all your libraries)
 * DEFER - how to detect corrupt settings file
 
 ## known issues
