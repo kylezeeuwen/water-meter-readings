@@ -4,8 +4,11 @@ module.exports = {
   },
   port: 8080,
   http_timeout_seconds: 120,
-  keyboard: {
-    path: '/usr/bin/florence'
+  handlerConfig: {
+    keyboard: {
+      path: '/usr/bin/florence',
+      throttle_interval_seconds: 2 // minimum time between open keyboard open commands
+    }
   },
   fileStore: {
     type: 'network',

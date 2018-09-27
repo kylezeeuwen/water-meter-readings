@@ -6,25 +6,26 @@ const http = require('http')
 const path = require('path')
 const fs = require('fs')
 const jsonParser = require('body-parser').json()
-const shell = require('shelljs')
+
 
 const NetworkFileStore = require('./lib/networkFileStore')
 const MeterSettings = require('./lib/meterSettings')
+
+// simple stateless handlers
+const redirectToSimpleReadingsHandler = require('./handlers/stateless/redirectToSimpleReadings')
+const healthHandler = require('./handlers/stateless/health')
+
+// stateful handlers
+const KeyboardHandler = require('./handlers/stateful/keyboard')
 
 class Server {
   constructor (config = {}) {
     this.config = config
     this.express = express()
 
-    // opening the keyboard too many times causes issues
-    const minKeyboardOpenRequestInterval = 2000
-    this.throttling = {
-      lastKeyboardOpenCommand: Date.now() - minKeyboardOpenRequestInterval,
-      minKeyboardOpenRequestInterval
-    }
-
     this.initialiseFileStore()
     this.initialiseMeterSettings()
+    this.initialiseStatfulHandlers()
 
     if (_.has(this.config, 'server.max_outbound_sockets')) {
       http.globalAgent.maxSockets = this.config.performance.maxSockets
@@ -50,6 +51,12 @@ class Server {
     this.meterSettings = new MeterSettings(meterSettingsConfig)
   }
 
+  initialiseStatfulHandlers () {
+    this.handlers = {
+      keyboard: new KeyboardHandler(this.config.handlerConfig.keyboard)
+    }
+  }
+
   start () {
     // NB callee catches
     return Promise.resolve()
@@ -59,25 +66,13 @@ class Server {
   }
 
   addRoutes () {
-    this.express.get('/', (req, res) => {
-      res.status(301)
-      res.header('location', '/client/simple-readings-page.html')
-      res.send()
-    })
-
-    this.express.get('/index.html', (req, res) => {
-      res.status(301)
-      res.header('location', '/client/simple-readings-page.html')
-      res.send()
-    })
-
+    // static content handlers
+    this.express.get('/', redirectToSimpleReadingsHandler)
+    this.express.get('/index.html', redirectToSimpleReadingsHandler)
     this.express.use('/client', express.static(path.join(__dirname, '../client')))
 
-    this.express.use('/server/health', (req, res) => {
-      res.status(200)
-      res.header('content-type', 'application/json')
-      res.send(JSON.stringify({ status: 'ok'}))
-    })
+    // server handlers
+    this.express.use('/server/health', healthHandler)
 
     this.express.get('/server/meter/water-rates', (req, res) => {
       this.fileStore.readFile(this.config.fileStore.readingsFileName)
@@ -131,29 +126,7 @@ class Server {
       })
     })
 
-    this.express.post('/server/keyboard/show', (req, res) => {
-
-      if (Date.now() < this.throttling.lastKeyboardOpenCommand + this.throttling.minKeyboardOpenRequestInterval) {
-        console.log({ eventType: 'throttling open keyboard request' })
-        res.status(200)
-        res.send()
-        return
-      }
-
-      try {
-        this.throttling.lastKeyboardOpenCommand = Date.now()
-        shell.exec(this.config.keyboard.path, function(code, stdout, stderr) {
-          console.log({ eventType: '/server/keyboard/show command result', code, stdout, stderr })
-        })
-        res.status(200)
-        res.send()
-      } catch (error) {
-        res.status(500)
-        console.log({ eventType: '/server/keyboard/show failed', message: error.message, stack: error.stack })
-        res.header('content-type', 'application/json')
-        res.send({ error: error.message, stack: error.stack })
-      }
-    })
+    this.express.post('/server/keyboard/show', this.handlers.keyboard.requestHandler)
 
     this.express.post(`/server/device-channels/:deviceChannelId/update-display-name`, jsonParser, (req, res) => {
       const deviceChannelId = _.get(req, 'params.deviceChannelId', false)
