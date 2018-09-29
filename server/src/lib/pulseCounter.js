@@ -1,15 +1,18 @@
+const _ = require('lodash')
+
+const noop = () => {}
 
 class PulseCounter {
   constructor({
-    deviceId,
-    litresPerPulse,
-    meterReadingBase,
-    pulseCountBase,
-    pulseCountMaxValue,
-    pulseCountLastObserved,
-    pulseCountCurrent,
-    overflowCount,
-    updateObservations
+    deviceId = 'id',
+    litresPerPulse = 1,
+    meterReadingBase = 0,
+    pulseCountBase = 0,
+    pulseCountMaxValue = 0,
+    pulseCountLastObserved = 0,
+    pulseCountCurrent = 0,
+    overflowCount = 0,
+    updateObservations = noop
   }) {
     this.deviceId = deviceId
     this.litresPerPulse = parseFloat(litresPerPulse)
@@ -41,21 +44,23 @@ class PulseCounter {
       this.updateObservations({
         deviceId: this.deviceId,
         overflowCount: this.overflowCount,
+        pulseCountLastObserved: this.pulseCountLastObserved
       })
     }
   }
 
-  // feels wrong given we are using pulseCountBase twice ??
+  getPulseCount () {
+    if (this.overflowCount === 0) {
+      return this.pulseCountCurrent - this.pulseCountBase
+    } else {
+      return this.pulseCountMaxValue - this.pulseCountBase +
+        (this.overflowCount - 1) * this.pulseCountMaxValue +
+        this.pulseCountCurrent
+    }
+  }
+
   getMeterReadingInLitres () {
-    const pulseCountAdjusted =
-      this.overflowCount * this.pulseCountMaxValue +
-      this.pulseCountCurrent -
-      this.pulseCountBase
-
-    const pulseDelta =
-      pulseCountAdjusted - this.pulseCountBase
-
-    return this.meterReadingBase + pulseDelta * this.litresPerPulse
+    return this.meterReadingBase + this.getPulseCount() * this.litresPerPulse
   }
 }
 
