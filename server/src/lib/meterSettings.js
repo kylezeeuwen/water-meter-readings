@@ -1,19 +1,17 @@
 const _ = require('lodash')
-const fs = require('fs')
-const request = require('request')
 
 const FileNotFoundError = require('./errors/fileNotFound')
 const SettingsUnavailableError = require('./errors/settingsUnavailable')
 
 // settings data format
 // {
-//   deviceChannels: {
-//     deviceChannelId: {
+//   pulseCounters: {
+//     id: {
 //       field: value
 //     }
 //   }
 // }
-const defaultInitialSettings = { deviceChannels: {} }
+const defaultInitialSettings = { pulseCounters: {} }
 
 function _delay (milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds))
@@ -52,32 +50,54 @@ class MeterSettings {
       .then(settingsFromNetwork => { this.settings = settingsFromNetwork })
   }
 
-  bulkGetDeviceChannelSettings (deviceChannelIds) {
+  bulkGetPulseCounterSettings (pulseCounterIds) {
     if (!this.initialSettingsReadComplete) {
       throw new SettingsUnavailableError()
     }
 
-    let response = []
+    let response = {}
     return Promise.resolve().then(() => {
-      _(deviceChannelIds).each(deviceChannelId => {
-        if (_.has(this.settings.deviceChannels, deviceChannelId)) {
-          response[deviceChannelId] = this.settings.deviceChannels[deviceChannelId]
+      _(pulseCounterIds).each(pulseCounterId => {
+        if (_.has(this.settings.pulseCounters, pulseCounterId)) {
+          response[pulseCounterId] = this.settings.pulseCounters[pulseCounterId]
         }
       })
       return response
     })
   }
 
-  setDeviceChannelField (deviceChannelId, fieldName, fieldValue) {
+  getAllPulseCounterSettings () {
+    if (!this.initialSettingsReadComplete) {
+      throw new SettingsUnavailableError()
+    }
+
+    return Promise.resolve(_.cloneDeep(this.settings.pulseCounters))
+  }
+
+  setPulseCounterFields (pulseCounterId, fields) {
+    if (!this.initialSettingsReadComplete) {
+      throw new SettingsUnavailableError()
+    }
+
+    if (!_.has(this.settings.pulseCounters, pulseCounterId)) {
+      this.settings.pulseCounters[pulseCounterId] = {}
+    }
+    _.map(fields, (fieldValue, fieldName) => {
+      this.settings.pulseCounters[pulseCounterId][fieldName] = fieldValue
+    })
+    return this.writeSettings()
+  }
+
+  setPulseCounterField (pulseCounterId, fieldName, fieldValue) {
     if (!this.initialSettingsReadComplete) {
       throw new SettingsUnavailableError()
     }
 
     return Promise.resolve().then(() => {
-      if (!_.has(this.settings.deviceChannels, deviceChannelId)) {
-        this.settings.deviceChannels[deviceChannelId] = {}
+      if (!_.has(this.settings.pulseCounters, pulseCounterId)) {
+        this.settings.pulseCounters[pulseCounterId] = {}
       }
-      this.settings.deviceChannels[deviceChannelId][fieldName] = fieldValue
+      this.settings.pulseCounters[pulseCounterId][fieldName] = fieldValue
       return this.writeSettings()
     })
   }

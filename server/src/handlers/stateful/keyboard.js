@@ -2,7 +2,7 @@ const shell = require('shelljs')
 const _ = require('lodash')
 
 class KeyboardHandler {
-  constructor (config) {
+  constructor ({config} = {}) {
     this.config = {}
 
     if (!_.has(config, 'path')) {

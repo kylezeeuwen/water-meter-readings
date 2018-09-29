@@ -10,6 +10,7 @@ const jsonParser = require('body-parser').json()
 
 const NetworkFileStore = require('./lib/networkFileStore')
 const MeterSettings = require('./lib/meterSettings')
+const PulseCounterManager = require('./lib/pulseCounterManager')
 
 // simple stateless handlers
 const redirectToSimpleReadingsHandler = require('./handlers/stateless/redirectToSimpleReadings')
@@ -17,6 +18,7 @@ const healthHandler = require('./handlers/stateless/health')
 
 // stateful handlers
 const KeyboardHandler = require('./handlers/stateful/keyboard')
+const GetReadingsHandler = require('./handlers/stateful/getReadings')
 
 class Server {
   constructor (config = {}) {
@@ -25,7 +27,8 @@ class Server {
 
     this.initialiseFileStore()
     this.initialiseMeterSettings()
-    this.initialiseStatfulHandlers()
+    this.initialisePulseCounterManager()
+    this.initialiseStatefulHandlers()
 
     if (_.has(this.config, 'server.max_outbound_sockets')) {
       http.globalAgent.maxSockets = this.config.performance.maxSockets
@@ -51,9 +54,19 @@ class Server {
     this.meterSettings = new MeterSettings(meterSettingsConfig)
   }
 
-  initialiseStatfulHandlers () {
+  initialisePulseCounterManager () {
+    this.pulseCounterManager = new PulseCounterManager({
+      readingsFileName: this.config.fileStore.readingsFileName,
+      fileStore: this.fileStore,
+      meterSettings: this.meterSettings,
+      pulseCounterMaxValue: this.config.pulseCounters.maxValue
+    })
+  }
+
+  initialiseStatefulHandlers () {
     this.handlers = {
-      keyboard: new KeyboardHandler(this.config.handlerConfig.keyboard)
+      keyboard: new KeyboardHandler({ config: this.config.keyboard }),
+      getReadings: new GetReadingsHandler({ pulseCounterManager: this.pulseCounterManager })
     }
   }
 
@@ -74,57 +87,7 @@ class Server {
     // server handlers
     this.express.use('/server/health', healthHandler)
 
-    this.express.get('/server/meter/water-rates', (req, res) => {
-      this.fileStore.readFile(this.config.fileStore.readingsFileName)
-      .then(JSON.parse)
-      .then(meterReading => {
-        const pulseCounterRows = _(meterReading.devices)
-          .flatMap(({ name: deviceName, channels }) => {
-            return _.map(channels, channel => {
-              return {
-                deviceName: deviceName,
-                channelName: channel.name,
-                deviceChannelId: `${deviceName}-${channel.name}`,
-                displayName: `${deviceName}-${channel.name}`,
-                litresPerPulse: 1,
-                pulses: channel.value,
-                time: channel.time
-              }
-            })
-          })
-          .filter(({channelName}) => channelName.match('^pulse_counter_.'))
-          .value()
-
-        const uniqueDeviceChannelIds = _(pulseCounterRows)
-          .map('deviceChannelId')
-          .value()
-
-        return this.meterSettings.bulkGetDeviceChannelSettings(uniqueDeviceChannelIds)
-          .then(deviceChannelSettings => {
-            const modifiedPulseCounterRows = _(pulseCounterRows)
-              .map(pulseCounterRow => {
-                if (_.has(deviceChannelSettings, `${pulseCounterRow.deviceChannelId}.litresPerPulse`)) {
-                  pulseCounterRow.litresPerPulse = deviceChannelSettings[pulseCounterRow.deviceChannelId]['litresPerPulse']
-                }
-                if (_.has(deviceChannelSettings, `${pulseCounterRow.deviceChannelId}.displayName`)) {
-                  pulseCounterRow.displayName = deviceChannelSettings[pulseCounterRow.deviceChannelId]['displayName']
-                }
-                return pulseCounterRow
-              })
-              .value()
-
-            res.status(200)
-            res.header('content-type', 'application/json')
-            res.send(JSON.stringify(modifiedPulseCounterRows))
-          })
-      })
-      .catch(error => {
-        res.status(500)
-        console.log({ eventType: '/server/meter/water-rates failed', message: error.message, stack: error.stack })
-        res.header('content-type', 'application/json')
-        res.send({ error: error.message, stack: error.stack })
-      })
-    })
+    this.express.get('/server/meter/water-rates', this.handlers.getReadings.requestHandler)
 
     this.express.post('/server/keyboard/show', this.handlers.keyboard.requestHandler)
 
@@ -137,7 +100,7 @@ class Server {
       else if (!displayName) {this._sendValidationError(res,'missing value in request body')}
       else if (_.isEmpty(displayName)) {this._sendValidationError(res,'value cannot be empty')}
       else {
-        this.meterSettings.setDeviceChannelField(deviceChannelId, 'displayName', displayName)
+        this.meterSettings.setPulseCounterField(deviceChannelId, 'displayName', displayName)
           .then(() => {
             res.status(200)
             res.send()
@@ -160,7 +123,7 @@ class Server {
       else if (_.isNaN(litresPerPulse)) {this._sendValidationError(res,'value is not a valid number')}
       else if (litresPerPulse < 0) {this._sendValidationError(res,'value cannot be negative')}
       else {
-        this.meterSettings.setDeviceChannelField(deviceChannelId, 'litresPerPulse', litresPerPulse)
+        this.meterSettings.setPulseCounterField(deviceChannelId, 'litresPerPulse', litresPerPulse)
           .then(() => {
             res.status(200)
             res.send()

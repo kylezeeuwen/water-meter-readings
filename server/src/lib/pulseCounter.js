@@ -4,7 +4,9 @@ const noop = () => {}
 
 class PulseCounter {
   constructor({
-    deviceId = 'id',
+    id = 'id',
+    displayName = this.id,
+    time,
     litresPerPulse = 1,
     meterReadingBase = 0,
     pulseCountBase = 0,
@@ -13,26 +15,29 @@ class PulseCounter {
     pulseCountCurrent = 0,
     overflowCount = 0,
     updateObservations = noop
-  }) {
-    this.deviceId = deviceId
+  } = {}) {
+    this.id = id
+    this.time = time
+    this.displayName = displayName
     this.litresPerPulse = parseFloat(litresPerPulse)
     this.meterReadingBase = parseFloat(meterReadingBase)
     this.pulseCountBase = parseFloat(pulseCountBase)
     this.pulseCountMaxValue = parseFloat(pulseCountMaxValue)
-    this.pulseCountLastObserved = parseFloat(pulseCountLastObserved)
+    this.pulseCountLastObserved = parseFloat(pulseCountLastObserved) // TODO bad name, will confuse ppl
     this.pulseCountCurrent = parseFloat(pulseCountCurrent)
     this.overflowCount = parseFloat(overflowCount)
     this.updateObservations = updateObservations
 
-    const invalidMessage = (fieldName, fieldValue, deviceId) => `Invalid '${fieldName}' for device id '${deviceId}': ${fieldValue}`
-    if (_.isNaN(this.litresPerPulse)) { throw new Error(invalidMessage(litresPerPulse, this.litresPerPulse, this.deviceId)) }
-    if (_.isNaN(this.meterReadingBase)) { throw new Error(invalidMessage(meterReadingBase, this.meterReadingBase, this.deviceId)) }
-    if (_.isNaN(this.pulseCountBase)) { throw new Error(invalidMessage(pulseCountBase, this.pulseCountBase, this.deviceId)) }
-    if (_.isNaN(this.pulseCountMaxValue)) { throw new Error(invalidMessage(pulseCountMaxValue, this.pulseCountMaxValue, this.deviceId)) }
-    if (_.isNaN(this.pulseCountLastObserved)) { throw new Error(invalidMessage(pulseCountLastObserved, this.pulseCountLastObserved, this.deviceId)) }
-    if (_.isNaN(this.pulseCountCurrent)) { throw new Error(invalidMessage(pulseCountCurrent, this.pulseCountCurrent, this.deviceId)) }
-    if (_.isNaN(this.overflowCount)) { throw new Error(invalidMessage(overflowCount, this.overflowCount, this.deviceId)) }
+    const invalidMessage = (fieldName, fieldValue, id) => `Invalid '${fieldName}' for device id '${id}': ${fieldValue}`
+    if (_.isNaN(this.litresPerPulse)) { throw new Error(invalidMessage(litresPerPulse, this.litresPerPulse, this.id)) }
+    if (_.isNaN(this.meterReadingBase)) { throw new Error(invalidMessage(meterReadingBase, this.meterReadingBase, this.id)) }
+    if (_.isNaN(this.pulseCountBase)) { throw new Error(invalidMessage(pulseCountBase, this.pulseCountBase, this.id)) }
+    if (_.isNaN(this.pulseCountMaxValue)) { throw new Error(invalidMessage(pulseCountMaxValue, this.pulseCountMaxValue, this.id)) }
+    if (_.isNaN(this.pulseCountLastObserved)) { throw new Error(invalidMessage(pulseCountLastObserved, this.pulseCountLastObserved, this.id)) }
+    if (_.isNaN(this.pulseCountCurrent)) { throw new Error(invalidMessage(pulseCountCurrent, this.pulseCountCurrent, this.id)) }
+    if (_.isNaN(this.overflowCount)) { throw new Error(invalidMessage(overflowCount, this.overflowCount, this.id)) }
 
+    this.overflowDetetionComplete = false
     this.detectAndCorrectOverflow ()
   }
 
@@ -41,11 +46,18 @@ class PulseCounter {
       this.overflowCount++
       this.pulseCountLastObserved = this.pulseCountCurrent
 
-      this.updateObservations({
-        deviceId: this.deviceId,
+      const updatePromise = this.updateObservations({
+        id: this.id,
         overflowCount: this.overflowCount,
         pulseCountLastObserved: this.pulseCountLastObserved
       })
+      if (updatePromise.then) {
+        updatePromise.then(() => { this.overflowDetetionComplete = true })
+      } else {
+        console.log('updatePromise did not return a promise')
+      }
+    } else {
+      this.overflowDetetionComplete = true
     }
   }
 
@@ -61,6 +73,22 @@ class PulseCounter {
 
   getMeterReadingInLitres () {
     return this.meterReadingBase + this.getPulseCount() * this.litresPerPulse
+  }
+
+  getDisplayInfo () {
+    return {
+      id: this.id,
+      displayName: this.displayName,
+      litresPerPulse: this.litresPerPulse,
+      meterReadingBase: this.meterReadingBase,
+      overflowCount: this.overflowCount,
+      pulseCountBase: this.pulseCountBase,
+      pulseCountCurrent: this.pulseCountCurrent,
+      pulseCountLastObserved: this.pulseCountLastObserved,
+      pulseCountMaxValue: this.pulseCountMaxValue,
+      reading: this.getMeterReadingInLitres(),
+      time: this.time
+    }
   }
 }
 
