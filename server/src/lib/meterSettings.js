@@ -90,7 +90,7 @@ class MeterSettings {
   }
 
   setPulseCounterField (pulseCounterId, fieldName, fieldValue) {
-    return this.setPulseCounterFields(pulseCounterId, { fieldName: fieldValue })
+    return this.setPulseCounterFields(pulseCounterId, { [fieldName]: fieldValue })
   }
 
   writeSettings () {

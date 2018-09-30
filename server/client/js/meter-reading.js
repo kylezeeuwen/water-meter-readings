@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const baseReadingNewValue = baseReadingInput[0].value
 
           const updatePromises = []
-          if (!_.isUndefined(baseReadingNewValue)) {
+          if (!_.isUndefined(baseReadingNewValue) && !_.isEmpty(baseReadingNewValue)) {
             updatePromises.push(resetReading({
               id,
               newValue: baseReadingNewValue,
