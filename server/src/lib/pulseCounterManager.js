@@ -31,7 +31,7 @@ class PulseCounterManager {
   }
 
   _initialiseSettingsFrom(pulseCounterData) {
-    return {
+    const initialObservations = {
       displayName: pulseCounterData.id,
       litresPerPulse: 1,
       meterReadingBase: 0,
@@ -39,12 +39,17 @@ class PulseCounterManager {
       pulseCountLastObserved: pulseCounterData.value,
       overflowCount: 0,
     }
+    console.log({ eventType: 'pulse_count_observation_initialise', ...initialObservations })
+    return initialObservations
   }
 
   _buildPulseCounter ({ data, settings, updateObservations = true}) {
 
     const updateObservationsHandler = (updateObservations)
-      ? ({id, fields}) => this.meterSettings.setPulseCounterFields(id, fields)
+      ? ({id, fields}) => {
+        console.log({ eventType: 'pulse_count_observation_update', id, fields })
+        return this.meterSettings.setPulseCounterFields(id, fields)
+      }
       : noop
 
     return new PulseCounter({

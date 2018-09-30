@@ -16,5 +16,8 @@ module.exports = {
     url: 'http://localhost:8081',
     readingsFileName: 'reading1.json',
     settingsFileName: 'meter-settings.json'
+  },
+  overflow_detector: {
+    polling_interval_seconds: 86400 * 0.5
   }
 }

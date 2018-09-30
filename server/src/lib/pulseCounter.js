@@ -53,7 +53,7 @@ class PulseCounter {
           pulseCountLastObserved: this.pulseCountLastObserved
         }
       })
-      if (updatePromise.then) {
+      if (updatePromise && updatePromise.then) {
         updatePromise.then(() => { this.overflowDetetionComplete = true })
       } else {
         console.log('updatePromise did not return a promise')

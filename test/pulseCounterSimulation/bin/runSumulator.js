@@ -5,17 +5,14 @@ const Readable = require('stream').Readable;
 
 
 const defaultConfig = {
-  duration: 60000,
-  updateFrequency: 3000,
+  durationSeconds: 60,
+  updateFrequencySeconds: 3,
   fileStore: {
     url: 'http://localhost:8081',
     readingsFileName: 'reading_simulation.json',
   },
   pulseCounters: [
-    { device: 'D1', description: 'foo', basePulses: 25, baseTime: Date.now(), pulseRatePerSecond: 1 },
-    { device: 'D1', description: 'foo', basePulses: 25, baseTime: Date.now(), pulseRatePerSecond: 1 },
-    { device: 'D2', description: 'foo', basePulses: 25, baseTime: Date.now(), pulseRatePerSecond: 1 },
-    { device: 'D2', description: 'foo', basePulses: 25, baseTime: Date.now(), pulseRatePerSecond: 1 }
+    { device: 'D1', description: 'foo', basePulses: 1, maxPulses: 100, baseTime: Date.now(), pulseRatePerSecond: 1 },
   ]
 }
 
@@ -28,13 +25,21 @@ const intervalHandle = setInterval(() => {
   writeFile(config.fileStore.readingsFileName, JSON.stringify(readingsFileContents, {}, 2))
     .then(() => console.log(`wrote to file ${config.fileStore.readingsFileName}`))
     .catch(error => console.error(`fail to write ${config.fileStore.readingsFileName}: `, error))
-}, config.updateFrequency)
+}, config.updateFrequencySeconds * 1000)
 
 setTimeout(() => {
   clearInterval(intervalHandle)
-}, config.duration)
+}, config.durationSeconds * 1000)
 
 function buildReadingsFile (pulseCounters) {
+  const pulseCount = (channel) => {
+    const secondsSinceStart = (Date.now() - channel.baseTime) / 1000
+    const pulsesBeforeOverflow = Math.floor(parseInt(channel.basePulses) + secondsSinceStart * parseFloat(channel.pulseRatePerSecond))
+    return (channel.maxPulses)
+      ? pulsesBeforeOverflow % channel.maxPulses
+      : pulsesBeforeOverflow
+  }
+
   const devices = _(pulseCounters)
     .groupBy('device')
     .map((channels, device) => {
@@ -43,7 +48,7 @@ function buildReadingsFile (pulseCounters) {
           unit: 'cnt',
           perm: 1,
           name: `pulse_counter_${index+1}`,
-          value: Math.floor(parseInt(channel.basePulses) + (Date.now() - channel.baseTime) / 1000 * parseFloat(channel.pulseRatePerSecond)),
+          value: pulseCount(channel),
           time: moment().format('YYYY-MM-DD HH:mm:ss')
         })),
         name: device

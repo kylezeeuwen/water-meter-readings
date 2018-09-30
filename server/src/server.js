@@ -21,6 +21,9 @@ const KeyboardHandler = require('./handlers/stateful/keyboard')
 const GetReadingsHandler = require('./handlers/stateful/getReadings')
 const ResetReadingHandler = require('./handlers/stateful/resetReading')
 
+// persistent services
+const OverflowDetector = require('./services/overflowDetector')
+
 class Server {
   constructor (config = {}) {
     this.config = config
@@ -30,6 +33,7 @@ class Server {
     this.initialiseMeterSettings()
     this.initialisePulseCounterManager()
     this.initialiseStatefulHandlers()
+    this.initialiseServices()
 
     if (_.has(this.config, 'server.max_outbound_sockets')) {
       http.globalAgent.maxSockets = this.config.performance.maxSockets
@@ -72,12 +76,21 @@ class Server {
     }
   }
 
+  initialiseServices () {
+    this.services = {
+      overflowDetector: new OverflowDetector({ pulseCounterManager: this.pulseCounterManager, pollIntervalMilliseconds: parseInt(this.config.overflow_detector.polling_interval_seconds) * 1000 })
+    }
+  }
+
   start () {
     // NB callee catches
     return Promise.resolve()
       .then(this.addRoutes.bind(this))
       .then(this.addCatchAllErrorHandlers.bind(this))
       .then(this.startExpress.bind(this))
+      .then(() => {
+        _(this.services).each((service) => service.start())
+      })
   }
 
   addRoutes () {
@@ -90,9 +103,6 @@ class Server {
     this.express.use('/server/health', healthHandler)
 
     this.express.get('/server/meter/water-rates', this.handlers.getReadings.requestHandler)
-
-
-
 
     this.express.post('/server/keyboard/show', this.handlers.keyboard.requestHandler)
 
@@ -182,6 +192,7 @@ class Server {
         resolve()
       }, forceShutdownTimeout)
       this.server.close(() => {
+        _(this.services).each((service) => service.stop())
         console.log({eventType: 'shutdown-complete'})
         clearTimeout(didntShutdownTimer)
         resolve()
