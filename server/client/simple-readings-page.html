@@ -20,17 +20,17 @@
                 <tr>
                     <td class="device-display-name">Display Name</td>
                     <td class="last-reading">Last Reading</td>
-                    <td class="reading">Reading (KL)</td>
+                    <td class="computed-reading">Reading (KL)</td>
                 </tr>
             </thead>
             <tbody>
               {{#rows}}
-                <tr data-device-channel-id="{{deviceChannelId}}">
+                <tr data-pulse-counter-id="{{id}}">
                     <!-- This hidden litres per pulse is here to make the shared meter-reading.js:updateReadingCell function keep working -->
                     <td style="display:none" class="litres-per-pulse"><input data-original-value="{{litresPerPulse}}" class="litres-per-pulse" type="text" value="{{litresPerPulse}}"/></td>
                     <td class="device-display-name">{{displayName}}</td>
                     <td class="last-reading">{{time}}</td>
-                    <td class="reading" data-pulses="{{pulses}}">{{reading}}</td>
+                    <td class="computed-reading">{{reading}}</td>
                 </tr>
               {{/rows}}
             </tbody>

@@ -19,6 +19,7 @@ const healthHandler = require('./handlers/stateless/health')
 // stateful handlers
 const KeyboardHandler = require('./handlers/stateful/keyboard')
 const GetReadingsHandler = require('./handlers/stateful/getReadings')
+const ResetReadingHandler = require('./handlers/stateful/resetReading')
 
 class Server {
   constructor (config = {}) {
@@ -66,7 +67,8 @@ class Server {
   initialiseStatefulHandlers () {
     this.handlers = {
       keyboard: new KeyboardHandler({ config: this.config.keyboard }),
-      getReadings: new GetReadingsHandler({ pulseCounterManager: this.pulseCounterManager })
+      getReadings: new GetReadingsHandler({ pulseCounterManager: this.pulseCounterManager }),
+      resetReading: new ResetReadingHandler({ pulseCounterManager: this.pulseCounterManager })
     }
   }
 
@@ -89,7 +91,12 @@ class Server {
 
     this.express.get('/server/meter/water-rates', this.handlers.getReadings.requestHandler)
 
+
+
+
     this.express.post('/server/keyboard/show', this.handlers.keyboard.requestHandler)
+
+    this.express.post('/server/device-channels/:deviceChannelId/reset-reading', jsonParser, this.handlers.resetReading.requestHandler)
 
     this.express.post(`/server/device-channels/:deviceChannelId/update-display-name`, jsonParser, (req, res) => {
       const deviceChannelId = _.get(req, 'params.deviceChannelId', false)

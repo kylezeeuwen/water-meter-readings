@@ -85,21 +85,12 @@ class MeterSettings {
     _.map(fields, (fieldValue, fieldName) => {
       this.settings.pulseCounters[pulseCounterId][fieldName] = fieldValue
     })
+
     return this.writeSettings()
   }
 
   setPulseCounterField (pulseCounterId, fieldName, fieldValue) {
-    if (!this.initialSettingsReadComplete) {
-      throw new SettingsUnavailableError()
-    }
-
-    return Promise.resolve().then(() => {
-      if (!_.has(this.settings.pulseCounters, pulseCounterId)) {
-        this.settings.pulseCounters[pulseCounterId] = {}
-      }
-      this.settings.pulseCounters[pulseCounterId][fieldName] = fieldValue
-      return this.writeSettings()
-    })
+    return this.setPulseCounterFields(pulseCounterId, { fieldName: fieldValue })
   }
 
   writeSettings () {

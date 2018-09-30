@@ -1,6 +1,8 @@
 const _ = require('lodash')
 const PulseCounter = require('./pulseCounter')
 
+const noop = () => {}
+
 class PulseCounterManager {
   constructor ({ pulseCounterMaxValue, readingsFileName, fileStore, meterSettings }) {
     this.fileStore = fileStore
@@ -39,13 +41,30 @@ class PulseCounterManager {
     }
   }
 
+  _buildPulseCounter ({ data, settings, updateObservations = true}) {
+
+    const updateObservationsHandler = (updateObservations)
+      ? ({id, fields}) => this.meterSettings.setPulseCounterFields(id, fields)
+      : noop
+
+    return new PulseCounter({
+      id: data.id,
+      time: data.time,
+      displayName: settings.displayName,
+      litresPerPulse: settings.litresPerPulse,
+      meterReadingBase: settings.meterReadingBase,
+      pulseCountBase: settings.pulseCountBase,
+      pulseCountMaxValue: this.pulseCounterMaxValue,
+      pulseCountLastObserved: settings.pulseCountLastObserved,
+      pulseCountCurrent: data.value,
+      overflowCount: settings.overflowCount,
+      updateObservations: updateObservationsHandler
+    })
+  }
+
   getPulseCounters () {
     return Promise.all([this.getRawReadingData(), this.meterSettings.getAllPulseCounterSettings()]).then(([pulseCountersData, pulseCountersSettings]) => {
       return pulseCountersData.map(data => {
-        console.log('pulseCountersSettings')
-        console.log(JSON.stringify(pulseCountersSettings, {}, 2))
-
-
         if (!_.has(pulseCountersSettings, data.id)) {
           const initialSettings = this._initialiseSettingsFrom(data)
           pulseCountersSettings[data.id] = initialSettings
@@ -53,22 +72,20 @@ class PulseCounterManager {
         }
 
         const settings = pulseCountersSettings[data.id]
-
-        return new PulseCounter({
-          id: data.id,
-          displayName: settings.displayName,
-          litresPerPulse: settings.litresPerPulse,
-          meterReadingBase: settings.meterReadingBase,
-          pulseCountBase: settings.pulseCountBase,
-          pulseCountMaxValue: this.pulseCounterMaxValue,
-          pulseCountLastObserved: settings.pulseCountLastObserved,
-          pulseCountCurrent: data.value,
-          overflowCount: settings.overflowCount,
-          updateObservations: ({id, overflowCount, pulseCountLastObserved}) => {
-            return this.meterSettings.setPulseCounterFields(id, {pulseCountLastObserved, overflowCount})
-          }
-        })
+        return this._buildPulseCounter({ data, settings })
       })
+    })
+  }
+
+  getPulseCounter (pulseCounterId) {
+    return Promise.all([this.getRawReadingData(), this.meterSettings.getAllPulseCounterSettings()]).then(([pulseCountersData, pulseCountersSettings]) => {
+      const data = pulseCountersData.filter(data => data.id === pulseCounterId)
+      if (data.length < 1) { throw new Error(`Cannot find pulse counter data with id ${pulseCounterId}`) }
+
+      const settings = pulseCountersSettings[pulseCounterId]
+      if (!settings) { throw new Error(`Cannot find pulse counter settings with id ${pulseCounterId}`) }
+
+      return this._buildPulseCounter({ data: data[0], settings })
     })
   }
 }

@@ -29,13 +29,13 @@ class PulseCounter {
     this.updateObservations = updateObservations
 
     const invalidMessage = (fieldName, fieldValue, id) => `Invalid '${fieldName}' for device id '${id}': ${fieldValue}`
-    if (_.isNaN(this.litresPerPulse)) { throw new Error(invalidMessage(litresPerPulse, this.litresPerPulse, this.id)) }
-    if (_.isNaN(this.meterReadingBase)) { throw new Error(invalidMessage(meterReadingBase, this.meterReadingBase, this.id)) }
-    if (_.isNaN(this.pulseCountBase)) { throw new Error(invalidMessage(pulseCountBase, this.pulseCountBase, this.id)) }
-    if (_.isNaN(this.pulseCountMaxValue)) { throw new Error(invalidMessage(pulseCountMaxValue, this.pulseCountMaxValue, this.id)) }
-    if (_.isNaN(this.pulseCountLastObserved)) { throw new Error(invalidMessage(pulseCountLastObserved, this.pulseCountLastObserved, this.id)) }
-    if (_.isNaN(this.pulseCountCurrent)) { throw new Error(invalidMessage(pulseCountCurrent, this.pulseCountCurrent, this.id)) }
-    if (_.isNaN(this.overflowCount)) { throw new Error(invalidMessage(overflowCount, this.overflowCount, this.id)) }
+    if (_.isNaN(this.litresPerPulse)) { throw new Error(invalidMessage('litresPerPulse', this.litresPerPulse, this.id)) }
+    if (_.isNaN(this.meterReadingBase)) { throw new Error(invalidMessage('meterReadingBase', this.meterReadingBase, this.id)) }
+    if (_.isNaN(this.pulseCountBase)) { throw new Error(invalidMessage('pulseCountBase', this.pulseCountBase, this.id)) }
+    if (_.isNaN(this.pulseCountMaxValue)) { throw new Error(invalidMessage('pulseCountMaxValue', this.pulseCountMaxValue, this.id)) }
+    if (_.isNaN(this.pulseCountLastObserved)) { throw new Error(invalidMessage('pulseCountLastObserved', this.pulseCountLastObserved, this.id)) }
+    if (_.isNaN(this.pulseCountCurrent)) { throw new Error(invalidMessage('pulseCountCurrent', this.pulseCountCurrent, this.id)) }
+    if (_.isNaN(this.overflowCount)) { throw new Error(invalidMessage('overflowCount', this.overflowCount, this.id)) }
 
     this.overflowDetetionComplete = false
     this.detectAndCorrectOverflow ()
@@ -48,8 +48,10 @@ class PulseCounter {
 
       const updatePromise = this.updateObservations({
         id: this.id,
-        overflowCount: this.overflowCount,
-        pulseCountLastObserved: this.pulseCountLastObserved
+        fields: {
+          overflowCount: this.overflowCount,
+          pulseCountLastObserved: this.pulseCountLastObserved
+        }
       })
       if (updatePromise.then) {
         updatePromise.then(() => { this.overflowDetetionComplete = true })
@@ -89,6 +91,24 @@ class PulseCounter {
       reading: this.getMeterReadingInLitres(),
       time: this.time
     }
+  }
+
+  resetReading (newBaseReadingString) {
+    const newBaseReading = parseFloat(newBaseReadingString)
+    if (_.isNaN(newBaseReading) || newBaseReading < 0) {
+      throw new Error(`Invalid base reading ${newBaseReadingString}: must be positive number`)
+    }
+
+    return this.updateObservations({
+      id: this.id,
+      fields: {
+        overflowCount: 0,
+        meterReadingBase: newBaseReading,
+        pulseCountBase: this.pulseCountCurrent,
+        pulseCountLastObserved: this.pulseCountCurrent
+      }
+    })
+
   }
 }
 
