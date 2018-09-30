@@ -36,11 +36,9 @@ class Server {
     this.initialiseStatefulHandlers()
     this.initialiseServices()
 
-    if (_.has(this.config, 'server.max_outbound_sockets')) {
-      http.globalAgent.maxSockets = this.config.performance.max_sockets
-    }
 
-    require('events').EventEmitter.prototype._maxListeners = 100
+    http.globalAgent.maxSockets = this.config.performance.max_sockets
+    require('events').EventEmitter.defaultMaxListeners = this.config.performance.max_event_listeners
   }
 
   initialiseFileStore () {

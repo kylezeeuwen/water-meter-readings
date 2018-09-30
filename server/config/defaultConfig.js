@@ -1,7 +1,8 @@
 module.exports = {
   log_level: 'info', // valid values: [ 'trace' | 'debug' | 'info' | 'warn' | 'error' ]
   performance: {
-    max_sockets: 500
+    max_sockets: 500,
+    max_event_listeners: 100
   },
   port: 8080,
   http_timeout_seconds: 120,
