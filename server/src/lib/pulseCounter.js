@@ -8,7 +8,7 @@ class PulseCounter {
     displayName = this.id,
     time,
     litresPerPulse = 1,
-    meterReadingBase = 0,
+    meterReadingBaseLitres = 0,
     pulseCountBase = 0,
     pulseCountMaxValue = 0,
     pulseCountLastObserved = 0,
@@ -20,7 +20,7 @@ class PulseCounter {
     this.time = time
     this.displayName = displayName
     this.litresPerPulse = parseFloat(litresPerPulse)
-    this.meterReadingBase = parseFloat(meterReadingBase)
+    this.meterReadingBaseLitres = parseFloat(meterReadingBaseLitres)
     this.pulseCountBase = parseFloat(pulseCountBase)
     this.pulseCountMaxValue = parseFloat(pulseCountMaxValue)
     this.pulseCountLastObserved = parseFloat(pulseCountLastObserved) // TODO bad name, will confuse ppl
@@ -30,7 +30,7 @@ class PulseCounter {
 
     const invalidMessage = (fieldName, fieldValue, id) => `Invalid '${fieldName}' for device id '${id}': ${fieldValue}`
     if (_.isNaN(this.litresPerPulse)) { throw new Error(invalidMessage('litresPerPulse', this.litresPerPulse, this.id)) }
-    if (_.isNaN(this.meterReadingBase)) { throw new Error(invalidMessage('meterReadingBase', this.meterReadingBase, this.id)) }
+    if (_.isNaN(this.meterReadingBaseLitres)) { throw new Error(invalidMessage('meterReadingBaseLitres', this.meterReadingBaseLitres, this.id)) }
     if (_.isNaN(this.pulseCountBase)) { throw new Error(invalidMessage('pulseCountBase', this.pulseCountBase, this.id)) }
     if (_.isNaN(this.pulseCountMaxValue)) { throw new Error(invalidMessage('pulseCountMaxValue', this.pulseCountMaxValue, this.id)) }
     if (_.isNaN(this.pulseCountLastObserved)) { throw new Error(invalidMessage('pulseCountLastObserved', this.pulseCountLastObserved, this.id)) }
@@ -68,7 +68,7 @@ class PulseCounter {
   }
 
   getMeterReadingInLitres () {
-    return this.meterReadingBase + this.getPulseCount() * this.litresPerPulse
+    return this.meterReadingBaseLitres + this.getPulseCount() * this.litresPerPulse
   }
 
   getDisplayInfo () {
@@ -76,7 +76,7 @@ class PulseCounter {
       id: this.id,
       displayName: this.displayName,
       litresPerPulse: this.litresPerPulse,
-      meterReadingBase: this.meterReadingBase,
+      meterReadingBaseLitres: this.meterReadingBaseLitres,
       overflowCount: this.overflowCount,
       pulseCountBase: this.pulseCountBase,
       pulseCountCurrent: this.pulseCountCurrent,
@@ -97,7 +97,7 @@ class PulseCounter {
       id: this.id,
       fields: {
         overflowCount: 0,
-        meterReadingBase: newBaseReading,
+        meterReadingBaseLitres: newBaseReading,
         pulseCountBase: this.pulseCountCurrent,
         pulseCountLastObserved: this.pulseCountCurrent
       }

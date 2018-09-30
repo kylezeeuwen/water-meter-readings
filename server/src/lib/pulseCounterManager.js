@@ -34,7 +34,7 @@ class PulseCounterManager {
     const initialObservations = {
       displayName: pulseCounterData.id,
       litresPerPulse: 1,
-      meterReadingBase: 0,
+      meterReadingBaseLitres: 0,
       pulseCountBase: pulseCounterData.value,
       pulseCountLastObserved: pulseCounterData.value,
       overflowCount: 0,
@@ -57,7 +57,7 @@ class PulseCounterManager {
       time: data.time,
       displayName: settings.displayName,
       litresPerPulse: settings.litresPerPulse,
-      meterReadingBase: settings.meterReadingBase,
+      meterReadingBaseLitres: settings.meterReadingBaseLitres,
       pulseCountBase: settings.pulseCountBase,
       pulseCountMaxValue: this.pulseCounterMaxValue,
       pulseCountLastObserved: settings.pulseCountLastObserved,

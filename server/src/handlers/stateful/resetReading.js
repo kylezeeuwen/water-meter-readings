@@ -10,10 +10,10 @@ class ResetReading {
 
   requestHandler (req, res) {
     const deviceChannelId = _.get(req, 'params.deviceChannelId', false)
-    const newBaseReading = _.get(req, 'body.value', false)
+    const newBaseReadingLitres = _.get(req, 'body.value', false)
 
     this.pulseCounterManager.getPulseCounter(deviceChannelId)
-      .then(pulseCounter => pulseCounter.resetReading(newBaseReading))
+      .then(pulseCounter => pulseCounter.resetReading(newBaseReadingLitres))
       .then(() => {
         res.status(200)
         res.header('content-type', 'application/json')

@@ -12,7 +12,7 @@ const defaultConfig = {
     readingsFileName: 'reading_simulation.json',
   },
   pulseCounters: [
-    { device: 'D1', description: 'foo', basePulses: 1, maxPulses: 10, baseTime: Date.now(), pulseRatePerSecond: 1 },
+    { device: 'D1', description: 'foo', basePulses: 1, maxPulses: 50, baseTime: Date.now(), pulseRatePerSecond: 1 },
   ]
 }
 

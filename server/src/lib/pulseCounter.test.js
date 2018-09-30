@@ -139,7 +139,7 @@ describe('PulseCounter', function () {
   describe('Get Meter Reading In Litres', function () {
     it('should multiply the pulse count by the litres per pulse and adds to the base reading', function () {
       const pc = new PulseCounter({
-        meterReadingBase: 10,
+        meterReadingBaseLitres: 10,
         litresPerPulse: 10
       })
       sinon.stub(pc, 'getPulseCount').returns(10)
