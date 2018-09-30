@@ -30,7 +30,7 @@ class KeyboardHandler {
 
   requestHandler(req, res) {
     if (Date.now() < this.throttling.lastKeyboardOpenCommand + this.throttling.interval) {
-      console.log({eventType: 'throttling open keyboard request'})
+      logger.info({eventType: 'throttling open keyboard request'})
       res.status(200)
       res.send()
       return
@@ -39,13 +39,13 @@ class KeyboardHandler {
     try {
       this.throttling.lastKeyboardOpenCommand = Date.now()
       shell.exec(this.path, function (code, stdout, stderr) {
-        console.log({eventType: '/server/keyboard/show command result', code, stdout, stderr})
+        logger.info({eventType: '/server/keyboard/show command result', code, stdout, stderr})
       })
       res.status(200)
       res.send()
     } catch (error) {
       res.status(500)
-      console.log({eventType: '/server/keyboard/show failed', message: error.message, stack: error.stack})
+      logger.error({eventType: '/server/keyboard/show failed', message: error.message, stack: error.stack})
       res.header('content-type', 'application/json')
       res.send({error: error.message, stack: error.stack})
     }

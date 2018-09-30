@@ -39,15 +39,15 @@ class PulseCounterManager {
       pulseCountLastObserved: pulseCounterData.value,
       overflowCount: 0,
     }
-    console.log({ eventType: 'pulse_count_observation_initialise', ...initialObservations })
+    logger.info({ eventType: 'pulse_count_observation_initialise', ...initialObservations })
     return initialObservations
   }
 
-  _buildPulseCounter ({ data, settings, updateObservations = true}) {
+  _buildPulseCounter ({ data, settings, updateSettings = true}) {
 
-    const updateObservationsHandler = (updateObservations)
+    const updateSettingsHandler = (updateSettings)
       ? ({id, fields}) => {
-        console.log({ eventType: 'pulse_count_observation_update', id, fields })
+        logger.info({ eventType: 'pulse_count_observation_update', id, fields })
         return this.meterSettings.setPulseCounterFields(id, fields)
       }
       : noop
@@ -63,7 +63,7 @@ class PulseCounterManager {
       pulseCountLastObserved: settings.pulseCountLastObserved,
       pulseCountCurrent: data.value,
       overflowCount: settings.overflowCount,
-      updateObservations: updateObservationsHandler
+      updateSettings: updateSettingsHandler
     })
   }
 

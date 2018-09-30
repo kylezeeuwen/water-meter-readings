@@ -26,6 +26,7 @@ const OverflowDetector = require('./services/overflowDetector')
 
 class Server {
   constructor (config = {}) {
+
     this.config = config
     this.express = express()
 
@@ -124,7 +125,7 @@ class Server {
           })
           .catch(error => {
             res.status(500)
-            console.log({ eventType: `${req.path} failed`, message: error.message, stack: error.stack })
+            logger.error({ eventType: `${req.path} failed`, message: error.message, stack: error.stack })
             res.header('content-type', 'application/json')
             res.send({ error: error.message, stack: error.stack })
           })
@@ -147,7 +148,7 @@ class Server {
           })
           .catch(error => {
             res.status(500)
-            console.log({ eventType: `${req.path} failed`, message: error.message, stack: error.stack })
+            logger.error({ eventType: `${req.path} failed`, message: error.message, stack: error.stack })
             res.header('content-type', 'application/json')
             res.send({ error: error.message, stack: error.stack })
           })
@@ -161,7 +162,7 @@ class Server {
       const stack = _.get(error, 'stack')
       const message = _.get(error, 'message')
 
-      console.log({eventType: 'generic-error-handler', stack, message})
+      logger.error({eventType: 'generic-error-handler', stack, message})
 
       res.status(500)
       res.header('content-type', 'application/json')
@@ -172,7 +173,7 @@ class Server {
   startExpress (port = this.config.port) {
     return new Promise((resolve) => {
       this.server = this.express.listen(port, () => {
-        console.log({eventType: 'server-listening', port: port})
+        logger.info({eventType: 'server-listening', port: port})
         resolve()
       })
       if (_.has(this.config, 'http_timeout_seconds')) {
@@ -183,17 +184,17 @@ class Server {
   }
 
   stop (signal) {
-    console.log({eventType: 'shutdown-start', signal: signal})
+    logger.info({eventType: 'shutdown-start', signal: signal})
 
     return new Promise((resolve) => {
       const forceShutdownTimeout = 5000
       const didntShutdownTimer = setTimeout(() => {
-        console.log({eventType: 'shutdown-failure', timeout: forceShutdownTimeout})
+        logger.error({eventType: 'shutdown-failure', timeout: forceShutdownTimeout})
         resolve()
       }, forceShutdownTimeout)
       this.server.close(() => {
         _(this.services).each((service) => service.stop())
-        console.log({eventType: 'shutdown-complete'})
+        logger.info({eventType: 'shutdown-complete'})
         clearTimeout(didntShutdownTimer)
         resolve()
       })
@@ -206,7 +207,7 @@ class Server {
     if (fs.existsSync(filePath)) {
       fileContents = fs.readFileSync(filePath, 'utf-8')
     } else {
-      console.log({
+      logger.error({
         eventType: 'file-not-found',
         error: {message: `file ${filePath} not found`}
       })

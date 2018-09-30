@@ -22,7 +22,7 @@ class ResetReading {
       })
       .catch(error => {
         res.status(500)
-        console.log({eventType: '/device-channels/:deviceChannelId/reset-reading failed', message: error.message, stack: error.stack})
+        logger.error({eventType: '/device-channels/:deviceChannelId/reset-reading failed', message: error.message, stack: error.stack})
         res.header('content-type', 'application/json')
         res.send({error: error.message || error, stack: error.stack})
       })

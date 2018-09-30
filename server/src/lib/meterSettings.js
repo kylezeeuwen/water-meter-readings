@@ -27,7 +27,7 @@ class MeterSettings {
     this.getInitialSettingsReading()
       .then(() => { this.initialSettingsReadComplete = true })
       .catch(error => {
-        console.log({ eventType: 'initial settings file load error', error: error && error.message, stack: error && error.stack })
+        logger.error({ eventType: 'initial settings file load error', error: error && error.message, stack: error && error.stack })
         throw error
       })
   }

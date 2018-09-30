@@ -14,7 +14,7 @@ class PulseCounter {
     pulseCountLastObserved = 0,
     pulseCountCurrent = 0,
     overflowCount = 0,
-    updateObservations = noop
+    updateSettings = noop
   } = {}) {
     this.id = id
     this.time = time
@@ -26,7 +26,7 @@ class PulseCounter {
     this.pulseCountLastObserved = parseFloat(pulseCountLastObserved) // TODO bad name, will confuse ppl
     this.pulseCountCurrent = parseFloat(pulseCountCurrent)
     this.overflowCount = parseFloat(overflowCount)
-    this.updateObservations = updateObservations
+    this.updateSettings = updateSettings
 
     const invalidMessage = (fieldName, fieldValue, id) => `Invalid '${fieldName}' for device id '${id}': ${fieldValue}`
     if (_.isNaN(this.litresPerPulse)) { throw new Error(invalidMessage('litresPerPulse', this.litresPerPulse, this.id)) }
@@ -37,7 +37,6 @@ class PulseCounter {
     if (_.isNaN(this.pulseCountCurrent)) { throw new Error(invalidMessage('pulseCountCurrent', this.pulseCountCurrent, this.id)) }
     if (_.isNaN(this.overflowCount)) { throw new Error(invalidMessage('overflowCount', this.overflowCount, this.id)) }
 
-    this.overflowDetetionComplete = false
     this.detectAndCorrectOverflow ()
   }
 
@@ -46,18 +45,13 @@ class PulseCounter {
       this.overflowCount++
       this.pulseCountLastObserved = this.pulseCountCurrent
 
-      const updatePromise = this.updateObservations({
+      this.updateSettings({
         id: this.id,
         fields: {
           overflowCount: this.overflowCount,
           pulseCountLastObserved: this.pulseCountLastObserved
         }
       })
-      if (updatePromise && updatePromise.then) {
-        updatePromise.then(() => { this.overflowDetetionComplete = true })
-      } else {
-        console.log('updatePromise did not return a promise')
-      }
     } else {
       this.overflowDetetionComplete = true
     }
@@ -99,7 +93,7 @@ class PulseCounter {
       throw new Error(`Invalid base reading ${newBaseReadingString}: must be positive number`)
     }
 
-    return this.updateObservations({
+    return this.updateSettings({
       id: this.id,
       fields: {
         overflowCount: 0,

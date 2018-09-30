@@ -10,19 +10,19 @@ class OverflowDetector {
   }
 
   start () {
-    console.log({ eventType: 'start_overflow_detector', interval_in_minutes: parseFloat(this.pollIntervalMilliseconds / (1000 * 60)).toFixed(), interval_in_days: parseFloat(this.pollIntervalMilliseconds / (1000 * 86400)).toFixed(2) })
+    logger.info({ eventType: 'start_overflow_detector', interval_in_minutes: parseFloat(this.pollIntervalMilliseconds / (1000 * 60)).toFixed(), interval_in_days: parseFloat(this.pollIntervalMilliseconds / (1000 * 86400)).toFixed(2) })
     this.pollingHandle = setInterval(() => {
       this.detectOverflowAndUpdateObservations()
     }, this.pollIntervalMilliseconds)
   }
 
   stop () {
-    console.log({ eventType: 'stop_overflow_detector' })
+    logger.info({ eventType: 'stop_overflow_detector' })
     clearInterval(this.pollingHandle)
   }
 
   detectOverflowAndUpdateObservations () {
-    console.log({ eventType: 'overflow_detector_run' })
+    logger.info({ eventType: 'overflow_detector_run' })
     this.pulseCounterManager.getPulseCounters() // this will auto trigger the overflow detection and updating
   }
 }

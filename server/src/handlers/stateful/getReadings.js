@@ -14,7 +14,7 @@ class GetReadingsHandler {
       res.send(JSON.stringify(response))
     }).catch(error => {
       res.status(500)
-      console.log({eventType: '/server/meter/water-rates failed', message: error.message, stack: error.stack})
+      logger.error({eventType: '/server/meter/water-rates failed', message: error.message, stack: error.stack})
       res.header('content-type', 'application/json')
       res.send({error: error.message, stack: error.stack})
     })

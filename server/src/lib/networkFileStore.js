@@ -24,19 +24,19 @@ class NetworkFileStore {
       const fullUrl = `${this.fileStoreUrl}/FS/WEB/${fileName}`
       request(fullUrl, function (error, response, body) {
         if (error) {
-          console.log({ eventType: 'network_file_get_fail', fileName, error })
+          logger.error({ eventType: 'network_file_get_fail', fileName, error })
           error.message = `Fail to retrieve ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`
           return reject(error)
         } else if (response && response.statusCode === 404) {
-          console.log({ eventType: 'network_file_get_fail', fileName, code: response.statusCode })
+          logger.error({ eventType: 'network_file_get_fail', fileName, code: response.statusCode })
           return reject(new FileNotFoundError(fileName, fullUrl))
         } else if (response && response.statusCode >= 400) {
-          console.log({ eventType: 'network_file_get_fail', fileName, code: response.statusCode })
+          logger.error({ eventType: 'network_file_get_fail', fileName, code: response.statusCode })
           const newError = new Error(`Fail to retrieve ${fileName} at ${fullUrl}: code:${_.get(response, 'statusCode')}`)
           newError.code = response.statusCode
           return reject(newError)
         } else {
-          console.log({ eventType: 'network_file_get_success', code: response && response.statusCode, fileName })
+          logger.info({ eventType: 'network_file_get_success', code: response && response.statusCode, fileName })
           return resolve(body)
         }
       });
@@ -79,16 +79,16 @@ class NetworkFileStore {
       const fullUrl = `${this.fileStoreUrl}/Forms/web_files_new_1`
       var req = request.post(fullUrl, function (error, response, body) {
         if (error) {
-          console.log({ eventType: 'network_file_set_fail', fileName, error })
+          logger.error({ eventType: 'network_file_set_fail', fileName, error })
           error.message = `Fail to upload ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`
           return reject(error)
         } else if (response && response.statusCode != 303) {
-          console.log({ eventType: 'network_file_set_fail', fileName, code: response.statusCode, fileContent })
+          logger.error({ eventType: 'network_file_set_fail', fileName, code: response.statusCode, fileContent })
           const newError = new Error(`Fail to upload '${fileName}' at '${fullUrl}': code:${_.get(response, 'statusCode')}`)
           newError.code = response.statusCode
           return reject(newError)
         } else {
-          console.log({ eventType: 'network_file_set_success', code: response && response.statusCode, fileName })
+          logger.info({ eventType: 'network_file_set_success', code: response && response.statusCode, fileName })
           return resolve()
         }
       })
