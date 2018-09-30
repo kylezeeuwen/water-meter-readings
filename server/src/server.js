@@ -36,15 +36,15 @@ class Server {
     this.initialiseServices()
 
     if (_.has(this.config, 'server.max_outbound_sockets')) {
-      http.globalAgent.maxSockets = this.config.performance.maxSockets
+      http.globalAgent.maxSockets = this.config.performance.max_sockets
     }
 
     require('events').EventEmitter.prototype._maxListeners = 100
   }
 
   initialiseFileStore () {
-    if (this.config.fileStore.type === 'network') {
-      this.fileStore = new NetworkFileStore({url: this.config.fileStore.url})
+    if (this.config.file_store.type === 'network') {
+      this.fileStore = new NetworkFileStore({url: this.config.file_store.url})
     } else {
       throw new Error(`fileStore type '${this.fileStore.type}' not supported`)
     }
@@ -53,7 +53,7 @@ class Server {
   initialiseMeterSettings () {
     const meterSettingsConfig = {
       fileStore: this.fileStore,
-      settingsFileName: this.config.fileStore.settingsFileName
+      settingsFileName: this.config.file_store.settings_file_name
     }
 
     this.meterSettings = new MeterSettings(meterSettingsConfig)
@@ -61,10 +61,10 @@ class Server {
 
   initialisePulseCounterManager () {
     this.pulseCounterManager = new PulseCounterManager({
-      readingsFileName: this.config.fileStore.readingsFileName,
+      readingsFileName: this.config.file_store.readings_file_name,
       fileStore: this.fileStore,
       meterSettings: this.meterSettings,
-      pulseCounterMaxValue: this.config.pulseCounters.maxValue
+      pulseCounterMaxValue: this.config.pulse_counters.max_value
     })
   }
 

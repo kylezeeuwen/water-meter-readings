@@ -28,10 +28,10 @@ NB Also tested with rasperry Pi
 
  Any variable in [./server/config/defaultConfig.js](server/config/defaultConfig.js) can be overridden on the command line by providing a parameter. "nested" parameters can be overridden one at a time using dot notation:
  
-* Changing the location of the network filestore : `node server/bin/startServer.js --fileStore.url='http://newlocation.com:8081'` 
-* Changing the path and minimum interval of the keyboard command : `node server/bin/startServer.js --handlerConfig.keyboard.path="/usr/bin/true" --handlerConfig.keyboard.throttle_interval_seconds=6` 
+* Changing the location of the network filestore : `node server/bin/startServer.js --file_store.url='http://newlocation.com:8081'` 
+* Changing the path and minimum interval of the keyboard command : `node server/bin/startServer.js --keyboard.path="/usr/bin/true" --keyboard.throttle_interval_seconds=6` 
 * Changing the port the server binds to : `node server/bin/startServer.js --port='9000'` 
-* Changing multiple things: `node server/bin/startServer.js --port='9000' --fileStore.url='http://newlocation.com:8081' --handlerConfig.keyboard.path='/usr/bin/true'`
+* Changing multiple things: `node server/bin/startServer.js --port='9000' --file_store.url='http://newlocation.com:8081' --handlerConfig.keyboard.path='/usr/bin/true'`
 
 ### Configuring the Client
 
