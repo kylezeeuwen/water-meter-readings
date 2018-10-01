@@ -9,34 +9,38 @@ const FileNotFoundError = require('./errors/fileNotFound')
 
 class NetworkFileStore {
   constructor ({url: fileStoreUrl} = {}) {
-    // this.mode = config.mode
     this.fileStoreUrl = fileStoreUrl
     this.writesInProgress = {}
     this.writeIdSequence = 0
+    this.counts = {
+      totalWriteRequests: 0,
+      totalActualWrites: 0,
+      totalReadRequests: 0
+    }
 
-    // if (!this.mode) { throw new Error('Filestore config missing mode') }
-    if (!this.fileStoreUrl) { throw new Error('Filestore config missing fileStoreUrl') }
+    if (!this.fileStoreUrl) { throw new Error('Filestore config missing file_store.url') }
   }
 
   // handle 404 etc (request doesn't throw error on 4XX or 5XX
   readFile (fileName) {
     return new Promise((resolve, reject) => {
       const fullUrl = `${this.fileStoreUrl}/FS/WEB/${fileName}`
+      this.counts.totalReadRequests++
       request(fullUrl, function (error, response, body) {
         if (error) {
-          logger.error({ eventType: 'network_file_get_fail', fileName, error })
+          logger.error({ eventType: 'network_file_get_fail', fileName, error, ...this.counts })
           error.message = `Fail to retrieve ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`
           return reject(error)
         } else if (response && response.statusCode === 404) {
-          logger.error({ eventType: 'network_file_get_fail', fileName, code: response.statusCode })
+          logger.error({ eventType: 'network_file_get_fail', fileName, code: response.statusCode, ...this.counts })
           return reject(new FileNotFoundError(fileName, fullUrl))
         } else if (response && response.statusCode >= 400) {
-          logger.error({ eventType: 'network_file_get_fail', fileName, code: response.statusCode })
+          logger.error({ eventType: 'network_file_get_fail', fileName, code: response.statusCode, ...this.counts })
           const newError = new Error(`Fail to retrieve ${fileName} at ${fullUrl}: code:${_.get(response, 'statusCode')}`)
           newError.code = response.statusCode
           return reject(newError)
         } else {
-          logger.info({ eventType: 'network_file_get_success', code: response && response.statusCode, fileName })
+          logger.info({ eventType: 'network_file_get_success', code: response && response.statusCode, fileName, ...this.counts })
           return resolve(body)
         }
       });
@@ -45,6 +49,7 @@ class NetworkFileStore {
 
   writeFile (fileName, fileContent) {
     const myWriteId = this.writeIdSequence++
+    this.counts.totalWriteRequests++
 
     if (!_.has(this.writesInProgress, fileName)) { this.writesInProgress[fileName] = [] }
     const myWriteQueue = this.writesInProgress[fileName]
@@ -69,6 +74,7 @@ class NetworkFileStore {
   }
 
   _writeFile (fileName, fileContent, contentType = 'application/json') {
+    this.counts.totalActualWrites++
     return new Promise((resolve, reject) => {
 
       const contentStream = new Readable()
@@ -77,18 +83,18 @@ class NetworkFileStore {
       contentStream.push(null)
 
       const fullUrl = `${this.fileStoreUrl}/Forms/web_files_new_1`
-      var req = request.post(fullUrl, function (error, response, body) {
+      var req = request.post(fullUrl, (error, response, body) => {
         if (error) {
-          logger.error({ eventType: 'network_file_set_fail', fileName, error })
+          logger.error({ eventType: 'network_file_set_fail', fileName, error, ...this.counts })
           error.message = `Fail to upload ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`
           return reject(error)
         } else if (response && response.statusCode != 303) {
-          logger.error({ eventType: 'network_file_set_fail', fileName, code: response.statusCode, fileContent })
+          logger.error({ eventType: 'network_file_set_fail', fileName, code: response.statusCode, fileContent, ...this.counts })
           const newError = new Error(`Fail to upload '${fileName}' at '${fullUrl}': code:${_.get(response, 'statusCode')}`)
           newError.code = response.statusCode
           return reject(newError)
         } else {
-          logger.info({ eventType: 'network_file_set_success', code: response && response.statusCode, fileName })
+          logger.info({ eventType: 'network_file_set_success', code: response && response.statusCode, fileName, ...this.counts })
           return resolve()
         }
       })

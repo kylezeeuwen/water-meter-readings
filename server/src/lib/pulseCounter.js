@@ -11,7 +11,9 @@ class PulseCounter {
     meterReadingBaseLitres = 0,
     pulseCountBase = 0,
     pulseCountMaxValue = 0,
-    pulseCountLastObserved = 0,
+    pulseCountLastObservedValue = 0,
+    pulseCountLastObservedTimestamp = 0,
+    staleObservationThresholdSeconds = 1,
     pulseCountCurrent = 0,
     overflowCount = 0,
     updateSettings = noop
@@ -23,7 +25,9 @@ class PulseCounter {
     this.meterReadingBaseLitres = parseFloat(meterReadingBaseLitres)
     this.pulseCountBase = parseFloat(pulseCountBase)
     this.pulseCountMaxValue = parseFloat(pulseCountMaxValue)
-    this.pulseCountLastObserved = parseFloat(pulseCountLastObserved) // TODO bad name, will confuse ppl
+    this.pulseCountLastObservedValue = parseFloat(pulseCountLastObservedValue)
+    this.pulseCountLastObservedTimestamp = parseFloat(pulseCountLastObservedTimestamp)
+    this.staleObservationThresholdMilliseconds = parseFloat(staleObservationThresholdSeconds) * 1000
     this.pulseCountCurrent = parseFloat(pulseCountCurrent)
     this.overflowCount = parseFloat(overflowCount)
     this.updateSettings = updateSettings
@@ -33,7 +37,9 @@ class PulseCounter {
     if (_.isNaN(this.meterReadingBaseLitres)) { throw new Error(invalidMessage('meterReadingBaseLitres', this.meterReadingBaseLitres, this.id)) }
     if (_.isNaN(this.pulseCountBase)) { throw new Error(invalidMessage('pulseCountBase', this.pulseCountBase, this.id)) }
     if (_.isNaN(this.pulseCountMaxValue)) { throw new Error(invalidMessage('pulseCountMaxValue', this.pulseCountMaxValue, this.id)) }
-    if (_.isNaN(this.pulseCountLastObserved)) { throw new Error(invalidMessage('pulseCountLastObserved', this.pulseCountLastObserved, this.id)) }
+    if (_.isNaN(this.pulseCountLastObservedValue)) { throw new Error(invalidMessage('pulseCountLastObservedValue', this.pulseCountLastObservedValue, this.id)) }
+    if (_.isNaN(this.pulseCountLastObservedTimestamp)) { throw new Error(invalidMessage('pulseCountLastObservedTimestamp', this.pulseCountLastObservedTimestamp, this.id)) }
+    if (_.isNaN(this.staleObservationThresholdMilliseconds)) { throw new Error(invalidMessage('staleObservationThresholdMilliseconds', this.staleObservationThresholdMilliseconds, this.id)) }
     if (_.isNaN(this.pulseCountCurrent)) { throw new Error(invalidMessage('pulseCountCurrent', this.pulseCountCurrent, this.id)) }
     if (_.isNaN(this.overflowCount)) { throw new Error(invalidMessage('overflowCount', this.overflowCount, this.id)) }
 
@@ -41,19 +47,30 @@ class PulseCounter {
   }
 
   detectAndCorrectOverflow () {
-    if (this.pulseCountCurrent < this.pulseCountLastObserved) {
+    if (this.pulseCountCurrent < this.pulseCountLastObservedValue) {
       this.overflowCount++
-      this.pulseCountLastObserved = this.pulseCountCurrent
+      this.pulseCountLastObservedValue = this.pulseCountCurrent
+      this.pulseCountLastObservedTimestamp = Date.now()
 
       this.updateSettings({
         id: this.id,
         fields: {
           overflowCount: this.overflowCount,
-          pulseCountLastObserved: this.pulseCountLastObserved
+          pulseCountLastObservedValue: this.pulseCountLastObservedValue,
+          pulseCountLastObservedTimestamp: this.pulseCountLastObservedTimestamp
         }
       })
-    } else {
-      this.overflowDetetionComplete = true
+    } else if (this.pulseCountLastObservedTimestamp + this.staleObservationThresholdMilliseconds < Date.now()) {
+      this.pulseCountLastObservedValue = this.pulseCountCurrent
+      this.pulseCountLastObservedTimestamp = Date.now()
+
+      this.updateSettings({
+        id: this.id,
+        fields: {
+          pulseCountLastObservedValue: this.pulseCountLastObservedValue,
+          pulseCountLastObservedTimestamp: this.pulseCountLastObservedTimestamp
+        }
+      })
     }
   }
 
@@ -80,7 +97,8 @@ class PulseCounter {
       overflowCount: this.overflowCount,
       pulseCountBase: this.pulseCountBase,
       pulseCountCurrent: this.pulseCountCurrent,
-      pulseCountLastObserved: this.pulseCountLastObserved,
+      pulseCountLastObservedValue: this.pulseCountLastObservedValue,
+      pulseCountLastObservedTimestamp: this.pulseCountLastObservedTimestamp,
       pulseCountMaxValue: this.pulseCountMaxValue,
       reading: this.getMeterReadingInLitres(),
       time: this.time
@@ -99,10 +117,10 @@ class PulseCounter {
         overflowCount: 0,
         meterReadingBaseLitres: newBaseReading,
         pulseCountBase: this.pulseCountCurrent,
-        pulseCountLastObserved: this.pulseCountCurrent
+        pulseCountLastObservedValue: this.pulseCountCurrent,
+        pulseCountLastObservedTimestamp: this.pulseCountLastObservedTimestamp,
       }
     })
-
   }
 }
 

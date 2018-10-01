@@ -5,14 +5,14 @@ const Readable = require('stream').Readable;
 
 
 const defaultConfig = {
-  durationSeconds: 60,
-  updateFrequencySeconds: 3,
-  fileStore: {
+  duration_seconds: 180,
+  update_frequency_seconds: 3,
+  file_store: {
     url: 'http://localhost:8081',
     readingsFileName: 'reading_simulation.json',
   },
   pulseCounters: [
-    { device: 'D1', description: 'foo', basePulses: 1, maxPulses: 50, baseTime: Date.now(), pulseRatePerSecond: 1 },
+    { device: 'D1', description: 'foo', basePulses: 1, maxPulses: 1000, baseTime: Date.now(), pulseRatePerSecond: 1 },
   ]
 }
 
@@ -22,14 +22,14 @@ const config = _.merge(defaultConfig, commandLineOverrides)
 
 const intervalHandle = setInterval(() => {
   const readingsFileContents = buildReadingsFile(config.pulseCounters)
-  writeFile(config.fileStore.readingsFileName, JSON.stringify(readingsFileContents, {}, 2))
-    .then(() => console.log(`wrote to file ${config.fileStore.readingsFileName}`))
-    .catch(error => console.error(`fail to write ${config.fileStore.readingsFileName}: `, error))
-}, config.updateFrequencySeconds * 1000)
+  writeFile(config.file_store.readingsFileName, JSON.stringify(readingsFileContents, {}, 2))
+    .then(() => console.log(`wrote to file ${config.file_store.readingsFileName}`))
+    .catch(error => console.error(`fail to write ${config.file_store.readingsFileName}: `, error))
+}, config.update_frequency_seconds * 1000)
 
 setTimeout(() => {
   clearInterval(intervalHandle)
-}, config.durationSeconds * 1000)
+}, config.duration_seconds * 1000)
 
 function buildReadingsFile (pulseCounters) {
   const pulseCount = (channel) => {
@@ -71,7 +71,7 @@ function writeFile (fileName, fileContent, contentType = 'application/json') {
     contentStream.push(fileContent)
     contentStream.push(null)
 
-    const fullUrl = `${config.fileStore.url}/Forms/web_files_new_1`
+    const fullUrl = `${config.file_store.url}/Forms/web_files_new_1`
     var req = request.post(fullUrl, function (error, response, body) {
       if (error) {
         console.log({ eventType: 'network_file_set_fail', fileName, error })

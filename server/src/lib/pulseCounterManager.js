@@ -30,13 +30,14 @@ class PulseCounterManager {
       })
   }
 
-  _initialiseSettingsFrom(pulseCounterData) {
+  _initialiseSettingsFrom (pulseCounterData) {
     const initialObservations = {
       displayName: pulseCounterData.id,
       litresPerPulse: 1,
       meterReadingBaseLitres: 0,
       pulseCountBase: pulseCounterData.value,
-      pulseCountLastObserved: pulseCounterData.value,
+      pulseCountLastObservedValue: pulseCounterData.value,
+      pulseCountLastObservedTimestamp: Date.now(),
       overflowCount: 0,
     }
     logger.info({ eventType: 'pulse_count_observation_initialise', ...initialObservations })
@@ -60,7 +61,9 @@ class PulseCounterManager {
       meterReadingBaseLitres: settings.meterReadingBaseLitres,
       pulseCountBase: settings.pulseCountBase,
       pulseCountMaxValue: this.pulseCounterMaxValue,
-      pulseCountLastObserved: settings.pulseCountLastObserved,
+      pulseCountLastObservedValue: settings.pulseCountLastObservedValue,
+      pulseCountLastObservedTimestamp: settings.pulseCountLastObservedTimestamp,
+      staleObservationThresholdSeconds: 30,
       pulseCountCurrent: data.value,
       overflowCount: settings.overflowCount,
       updateSettings: updateSettingsHandler
