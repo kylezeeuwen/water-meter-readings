@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const fs = require('fs')
 const moment = require('moment')
 const request = require('request')
 const Readable = require('stream').Readable;
@@ -12,24 +13,34 @@ const defaultConfig = {
     url: 'http://localhost:8081',
     readingsFileName: 'reading_simulation.json',
   },
-  pulseCounters: [
-    { device: 'D1', description: 'foo', basePulses: 1, baseTime: Date.now(), pulseRatePerSecond: 1 },
-  ]
+  // array of objects { device: 'D1', description: 'foo', basePulses: 1, pulseRatePerSecond: 1 }
+  // auto configured below
+  pulseCounters: []
 }
 
 const argParser = require('yargs')
 const commandLineOverrides = argParser.argv
-const config = _.merge(defaultConfig, commandLineOverrides)
 
-config.pulseCounters = _.range(parseInt(config.number_pulse_counters)).map((index) => {
-  return {
-    device: `D${index}`,
-    description: `D${index}`,
-    basePulses: 1,
-    baseTime: Date.now(),
-    pulseRatePerSecond: 1
-  }
-})
+let simulationFileOverrides = {}
+if (commandLineOverrides.simulation_file) {
+  const fileContentsString = fs.readFileSync(commandLineOverrides.simulation_file)
+  simulationFileOverrides = JSON.parse(fileContentsString)
+}
+
+
+const config = _.merge(defaultConfig, commandLineOverrides, simulationFileOverrides)
+
+if (config.pulseCounters.length === 0) {
+  config.pulseCounters = _.range(parseInt(config.number_pulse_counters)).map((index) => {
+    return {
+      device: `D${index}`,
+      description: `D${index}`,
+      basePulses: 1,
+      pulseRatePerSecond: 1
+    }
+  })
+}
+config.pulseCounters = config.pulseCounters.map(pulseCounter => _.merge(pulseCounter, { baseTime: Date.now() }))
 
 const intervalHandle = setInterval(() => {
   const readingsFileContents = buildReadingsFile(config.pulseCounters)

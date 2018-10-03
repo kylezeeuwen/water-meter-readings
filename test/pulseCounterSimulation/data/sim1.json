@@ -1,0 +1,5 @@
+{
+  "pulseCounters": [
+    { "device": "Sim1", "description": "example of how to use sim file", "basePulses": 1, "pulseRatePerSecond": 1 }
+  ]
+}
