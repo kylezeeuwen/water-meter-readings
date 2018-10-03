@@ -64,13 +64,11 @@ class NetworkFileStore {
     this.counts.totalWriteRequests++
 
     if (!_.has(this.pendingWrites, fileName)) { this.pendingWrites[fileName] = [] }
-    let doneWritingPromise
-    doneWritingPromise = new Promise((resolve, reject) => {
+    const doneWritingPromise = new Promise((resolve, reject) => {
       this.pendingWrites[fileName].push({
         writeId: myWriteId,
         fileContent,
         status: NetworkFileStore.writeStatuses.PENDING,
-        promise: doneWritingPromise,
         resolve,
         reject,
         contentType: 'application/json'
@@ -85,6 +83,9 @@ class NetworkFileStore {
       })
     })
 
+    const newWriteRecord = _.find(this.pendingWrites[fileName], {writeId: myWriteId})
+    if (newWriteRecord) { newWriteRecord.promise = doneWritingPromise }
+
     // TODO handle reject here as this is not returned
     delay(this.writeDelayThreshold)
       .then(() => this._processWriteQueueFor(fileName, myWriteId))
@@ -93,7 +94,6 @@ class NetworkFileStore {
   }
 
   _processWriteQueueFor (fileName, requestedWriteId) {
-
     const myWriteQueue = this.pendingWrites[fileName]
     const writeInProgress = _.findLast(myWriteQueue, {status: NetworkFileStore.writeStatuses.WRITING})
     const writeInProgressId = _.get(writeInProgress, 'writeId', null)
