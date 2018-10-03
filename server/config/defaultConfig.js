@@ -1,5 +1,6 @@
 module.exports = {
   log_level: 'info', // valid values: [ 'trace' | 'debug' | 'info' | 'warn' | 'error' ]
+  memory_profile_interval_seconds: null,
   performance: {
     max_sockets: 500,
     max_event_listeners: 100

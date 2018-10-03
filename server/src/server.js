@@ -87,6 +87,15 @@ class Server {
   }
 
   start () {
+    if (this.config.memory_profile_interval_seconds) {
+      this.memoryProfileHandle = setInterval(() => {
+        if (gc) { gc() }
+        const memoryInfo = process.memoryUsage()
+        logger.debug({ eventType: 'memory-profile', ...memoryInfo })
+      }, this.config.memory_profile_interval_seconds * 1000)
+    }
+
+
     // NB callee catches
     return Promise.resolve()
       .then(this.addRoutes.bind(this))
@@ -146,6 +155,8 @@ class Server {
 
   stop (signal) {
     logger.info({eventType: 'shutdown-start', signal: signal})
+
+    if (this.memoryProfileHandle) { clearInterval(this.memoryProfileHandle) }
 
     return new Promise((resolve) => {
       const forceShutdownTimeout = 5000
