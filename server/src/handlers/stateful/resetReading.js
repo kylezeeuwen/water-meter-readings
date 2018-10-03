@@ -14,11 +14,15 @@ class ResetReading {
 
     this.pulseCounterManager.getPulseCounter(pulseCounterId)
       .then(pulseCounter => pulseCounter.resetReading(newBaseReadingLitres))
-      .then(() => {
+      .then(() => this.pulseCounterManager.getPulseCounter(pulseCounterId))
+      .then(pulseCounter => {
+        const { reading } = pulseCounter.getDisplayInfo()
+        return reading
+      })
+      .then((reading) => {
         res.status(200)
         res.header('content-type', 'application/json')
-        res.send()
-
+        res.send({ newReading: reading })
       })
       .catch(error => {
         res.status(500)

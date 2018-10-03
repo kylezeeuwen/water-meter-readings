@@ -76,7 +76,7 @@ class Server {
       getReadings: new GetReadingsHandler({ pulseCounterManager: this.pulseCounterManager }),
       resetReading: new ResetReadingHandler({ pulseCounterManager: this.pulseCounterManager }),
       updateDisplayName: new UpdateDisplayName({ meterSettings: this.meterSettings }),
-      updateLitresPerPulse: new UpdateLitresPerPulse({ meterSettings: this.meterSettings })
+      updateLitresPerPulse: new UpdateLitresPerPulse({ meterSettings: this.meterSettings, pulseCounterManager: this.pulseCounterManager })
     }
   }
 

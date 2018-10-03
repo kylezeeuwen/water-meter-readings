@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return response.json().then(serverResponse => {
 
         const tableRows = serverResponse.map(rowData => {
-          return { ...rowData, readingKiloLitres: (parseFloat(rowData.reading) / 1000).toFixed(3) }
+          return { ...rowData, readingKiloLitres: kiloLitresFromLitres(rowData.reading) }
         })
 
         const template = $('#table-body').html()
@@ -118,7 +118,9 @@ function updateLitresPerPulse ({ inputElement, id, newValue, originalValue }) {
     .then(response => {
       const success = response.status === 200
       if (success) {
-        addRefreshMessageTo({ id })
+        return response.json()
+          .then(body => kiloLitresFromLitres(body.newReading))
+          .then(reading => updateReading({ id, reading }))
       } else {
         inputElement.val(originalValue)
         return response.json()
@@ -145,7 +147,9 @@ function resetReading ({id, newValue, inputElement}) {
     .then(response => {
       const success = response.status === 200
       if (success) {
-        addRefreshMessageTo({ id })
+        return response.json()
+          .then(body => kiloLitresFromLitres(body.newReading))
+          .then(reading => updateReading({ id, reading }))
       } else {
         inputElement.val('')
         return response.json()
@@ -161,10 +165,13 @@ function resetReading ({id, newValue, inputElement}) {
     })
 }
 
-function addRefreshMessageTo ({ id }) {
-  $(`tr[data-pulse-counter-id="${id}"] td.computed-reading`).html('Reload for updated reading')
+function kiloLitresFromLitres(litres) {
+  return (parseFloat(litres) / 1000).toFixed(3)
 }
 
+function updateReading ({ id, reading }) {
+  $(`tr[data-pulse-counter-id="${id}"] td.computed-reading`).html(reading)
+}
 
 function delay(t, v) {
   return new Promise(function(resolve) {

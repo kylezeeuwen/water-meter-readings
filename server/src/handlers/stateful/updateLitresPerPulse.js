@@ -1,8 +1,9 @@
 const _ = require('lodash')
 
 class UpdateLitresPerPulse {
-  constructor ({ meterSettings }) {
+  constructor ({ meterSettings, pulseCounterManager }) {
     this.meterSettings = meterSettings
+    this.pulseCounterManager = pulseCounterManager
 
     // NB bind handler so fn handler can be passed direct to express route
     this.requestHandler = this.requestHandler.bind(this)
@@ -19,9 +20,15 @@ class UpdateLitresPerPulse {
     else if (litresPerPulse < 0) {this._sendValidationError(res,'value cannot be negative')}
     else {
       this.meterSettings.setPulseCounterField(pulseCounterId, 'litresPerPulse', litresPerPulse)
-        .then(() => {
+        .then(() => this.pulseCounterManager.getPulseCounter(pulseCounterId))
+        .then(pulseCounter => {
+          const { reading } = pulseCounter.getDisplayInfo()
+          return reading
+        })
+        .then((reading) => {
           res.status(200)
-          res.send()
+          res.header('content-type', 'application/json')
+          res.send({ newReading: reading })
         })
         .catch(error => {
           res.status(500)
