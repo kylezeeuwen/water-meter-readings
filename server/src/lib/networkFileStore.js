@@ -5,13 +5,25 @@ const Readable = require('stream').Readable;
 const FileNotFoundError = require('./errors/fileNotFound')
 // written to read / write to a Digi Connect X4 using simple GET for retrieval , and POST multipart/form for file upload
 // guarantees:
-//     * If I call write to file X twice, the second write will win, and the second write will not begin until the first write has completed
+//     * If I call write to file X twice, the second write will win
+//     * All writes to file X within writeDelayThreshold milliseconds will be amortised into a single write, using the contents of the last write call within the period
+
+
 
 class NetworkFileStore {
-  constructor ({url: fileStoreUrl} = {}) {
+
+  static get writeStatuses () {
+    return {
+      PENDING: 'PENDING',
+      WRITING: 'WRITING'
+    }
+  }
+
+  constructor ({url: fileStoreUrl, writeDelayThreshold = 50 } = {}) {
     this.fileStoreUrl = fileStoreUrl
-    this.writesInProgress = {}
-    this.writeIdSequence = 0
+    this.pendingWrites = {}
+    this.writeIdSequence = 1
+    this.writeDelayThreshold = writeDelayThreshold
     this.counts = {
       totalWriteRequests: 0,
       totalActualWrites: 0,
@@ -32,7 +44,7 @@ class NetworkFileStore {
           error.message = `Fail to retrieve ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`
           return reject(error)
         } else if (response && response.statusCode === 404) {
-          logger.error({ eventType: 'network_file_get_fail', fileName, code: response.statusCode, ...this.counts })
+          logger.warn({ eventType: 'network_file_get_fail', fileName, code: response.statusCode, ...this.counts })
           return reject(new FileNotFoundError(fileName, fullUrl))
         } else if (response && response.statusCode >= 400) {
           logger.error({ eventType: 'network_file_get_fail', fileName, code: response.statusCode, ...this.counts })
@@ -51,30 +63,117 @@ class NetworkFileStore {
     const myWriteId = this.writeIdSequence++
     this.counts.totalWriteRequests++
 
-    if (!_.has(this.writesInProgress, fileName)) { this.writesInProgress[fileName] = [] }
-    const myWriteQueue = this.writesInProgress[fileName]
-
-    const clearToWritePromise = (_.isEmpty(myWriteQueue))
-        ? Promise.resolve()
-        : _.last(myWriteQueue).promise
-
-    const doneWritingPromise = clearToWritePromise
-      .then(() => this._writeFile(fileName, fileContent))
-      .then((writeResult) => {
-        this.writesInProgress[fileName] = this.writesInProgress[fileName].filter(writeQueueEntry => writeQueueEntry.id !== myWriteId)
-        return writeResult
+    if (!_.has(this.pendingWrites, fileName)) { this.pendingWrites[fileName] = [] }
+    let doneWritingPromise
+    doneWritingPromise = new Promise((resolve, reject) => {
+      this.pendingWrites[fileName].push({
+        writeId: myWriteId,
+        fileContent,
+        status: NetworkFileStore.writeStatuses.PENDING,
+        promise: doneWritingPromise,
+        resolve,
+        reject,
+        contentType: 'application/json'
       })
 
-    this.writesInProgress[fileName].push({
-      id: myWriteId,
-      promise: doneWritingPromise
+      logger.debug({ eventType: 'write_file_outer_called', ...this.counts,
+        writeId: myWriteId,
+        fileName,
+        status: NetworkFileStore.writeStatuses.PENDING,
+        pendingWriteQueue: this.getWriteQueueSummary(fileName),
+        ...this.counts,
+      })
     })
+
+    // TODO handle reject here as this is not returned
+    delay(this.writeDelayThreshold)
+      .then(() => this._processWriteQueueFor(fileName, myWriteId))
 
     return doneWritingPromise
   }
 
-  _writeFile (fileName, fileContent, contentType = 'application/json') {
-    this.counts.totalActualWrites++
+  _processWriteQueueFor (fileName, requestedWriteId) {
+
+    const myWriteQueue = this.pendingWrites[fileName]
+    const writeInProgress = _.findLast(myWriteQueue, {status: NetworkFileStore.writeStatuses.WRITING})
+    const writeInProgressId = _.get(writeInProgress, 'writeId', null)
+
+    const useCurrentWriteInProgress = (writeInProgress && writeInProgressId >= requestedWriteId)
+    const waitForCurrentWriteToCompleteThenWriteAgain = (writeInProgress && writeInProgressId < requestedWriteId)
+
+    logger.debug({
+      eventType: 'process_write_queue',
+      fileName,
+      requestedWriteId,
+      writeInProgress: (writeInProgress) ? 'true' : 'false',
+      writeInProgressId,
+      useCurrentWriteInProgress: (useCurrentWriteInProgress) ? 'true' : 'false',
+      waitForCurrentWriteToCompleteThenWriteAgain: (waitForCurrentWriteToCompleteThenWriteAgain) ? 'true' : 'false',
+      pendingWriteQueue: this.getWriteQueueSummary(fileName),
+      ...this.counts,
+    })
+
+    if (useCurrentWriteInProgress) {
+      return writeInProgress.promise
+    } else if (waitForCurrentWriteToCompleteThenWriteAgain) {
+      return writeInProgress.promise
+        .then(() => this._actuallyWriteFile(fileName))
+    } else {
+      return this._actuallyWriteFile(fileName)
+    }
+  }
+
+  _actuallyWriteFile(fileName) {
+    const myWriteQueue = this.pendingWrites[fileName]
+    const mostRecentPendingWriteRequest = _.findLast(myWriteQueue, {status: NetworkFileStore.writeStatuses.PENDING})
+
+    if (mostRecentPendingWriteRequest) {
+      mostRecentPendingWriteRequest.status = NetworkFileStore.writeStatuses.WRITING
+      const {fileContent, contentType, writeId} = mostRecentPendingWriteRequest
+      logger.debug({
+        eventType: 'actually_write_file_begin',
+        fileName,
+        writeId,
+        pendingWriteQueue: this.getWriteQueueSummary(fileName),
+        ...this.counts,
+      })
+      return this._networkWrite({fileName, fileContent, contentType, writeId})
+        .then(writeId => {
+          const completedRequests = this.pendingWrites[fileName].filter(writeRecord => writeRecord.writeId <= writeId)
+          completedRequests.map(completedRequest => completedRequest.resolve())
+          this.pendingWrites[fileName] = this.pendingWrites[fileName].filter(writeRecord => writeRecord.writeId > writeId)
+          logger.debug({
+            eventType: 'actually_write_file_success',
+            writeId,
+            resolvedPromiseCount: completedRequests.length,
+            pendingWriteQueue: this.getWriteQueueSummary(fileName),
+            ...this.counts,
+          })
+        })
+        .catch(error => {
+          const failedRequests = this.pendingWrites[fileName].filter(writeRecord => writeRecord.writeId <= writeId)
+          failedRequests.map(failedRequest => failedRequest.reject(error))
+          this.pendingWrites[fileName] = this.pendingWrites[fileName].filter(writeRecord => writeRecord.writeId > writeId)
+          logger.error({
+            eventType: 'actually_write_file_fail',
+            error,
+            writeId,
+            rejectedPromiseCount: failedRequests.length,
+            pendingWriteQueue: this.getWriteQueueSummary(fileName),
+            ...this.counts,
+          })
+        })
+    } else {
+      logger.warn({
+        eventType: 'actually_write_file_no_pending_writes',
+        pendingWriteQueue: this.getWriteQueueSummary(fileName),
+        ...this.counts,
+      })
+      return Promise.resolve(null)
+    }
+  }
+
+  _networkWrite ({ fileName, fileContent, contentType, writeId }) {
     return new Promise((resolve, reject) => {
 
       const contentStream = new Readable()
@@ -84,6 +183,7 @@ class NetworkFileStore {
 
       const fullUrl = `${this.fileStoreUrl}/Forms/web_files_new_1`
       var req = request.post(fullUrl, (error, response, body) => {
+        this.counts.totalActualWrites++
         if (error) {
           logger.error({ eventType: 'network_file_set_fail', fileName, error, ...this.counts })
           error.message = `Fail to upload ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`
@@ -95,7 +195,7 @@ class NetworkFileStore {
           return reject(newError)
         } else {
           logger.info({ eventType: 'network_file_set_success', code: response && response.statusCode, fileName, ...this.counts })
-          return resolve()
+          return resolve(writeId)
         }
       })
       var form = req.form()
@@ -103,6 +203,17 @@ class NetworkFileStore {
       form.append('file', contentStream, {filename: fileName, contentType})
     })
   }
+
+  getWriteQueueSummary (fileName) {
+    return '[' + this.pendingWrites[fileName].map(({status, writeId}) => `${writeId}:${status}`).join(', ') + ']'
+  }
+}
+
+function delay(t, v = x => x) {
+  return new Promise(function(resolve) {
+    setTimeout(resolve.bind(null, v), t)
+  });
 }
 
 module.exports = NetworkFileStore
+

@@ -63,7 +63,8 @@ class Server {
       readingsFileName: this.config.file_store.readings_file_name,
       fileStore: this.fileStore,
       meterSettings: this.meterSettings,
-      pulseCounterMaxValue: this.config.pulse_counters.max_value
+      pulseCounterMaxValue: this.config.pulse_counters.max_value,
+      maxObservationAgeMilliseconds: parseFloat(this.config.pulse_counters.max_observation_age_seconds) * 1000,
     })
   }
 

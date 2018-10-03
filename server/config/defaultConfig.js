@@ -7,7 +7,8 @@ module.exports = {
   port: 8080,
   http_timeout_seconds: 120,
   pulse_counters: {
-    max_value: 2559999
+    max_value: 2559999,
+    max_observation_age_seconds: 86400
   },
   keyboard: {
     path: '/usr/bin/florence',

@@ -4,11 +4,12 @@ const PulseCounter = require('./pulseCounter')
 const noop = () => {}
 
 class PulseCounterManager {
-  constructor ({ pulseCounterMaxValue, readingsFileName, fileStore, meterSettings }) {
+  constructor ({ maxObservationAgeMilliseconds, pulseCounterMaxValue, readingsFileName, fileStore, meterSettings }) {
     this.fileStore = fileStore
     this.meterSettings = meterSettings
     this.readingsFileName = readingsFileName
     this.pulseCounterMaxValue = pulseCounterMaxValue
+    this.maxObservationAgeMilliseconds = maxObservationAgeMilliseconds
   }
 
   getRawReadingData () {
@@ -63,7 +64,7 @@ class PulseCounterManager {
       pulseCountMaxValue: this.pulseCounterMaxValue,
       pulseCountLastObservedValue: settings.pulseCountLastObservedValue,
       pulseCountLastObservedTimestamp: settings.pulseCountLastObservedTimestamp,
-      staleObservationThresholdSeconds: 30,
+      maxObservationAgeMilliseconds: this.maxObservationAgeMilliseconds,
       pulseCountCurrent: data.value,
       overflowCount: settings.overflowCount,
       updateSettings: updateSettingsHandler

@@ -3,22 +3,33 @@ const moment = require('moment')
 const request = require('request')
 const Readable = require('stream').Readable;
 
-
 const defaultConfig = {
   duration_seconds: 180,
   update_frequency_seconds: 3,
+  number_pulse_counters: 1,
+  max_pulses: 1000,
   file_store: {
     url: 'http://localhost:8081',
     readingsFileName: 'reading_simulation.json',
   },
   pulseCounters: [
-    { device: 'D1', description: 'foo', basePulses: 1, maxPulses: 1000, baseTime: Date.now(), pulseRatePerSecond: 1 },
+    { device: 'D1', description: 'foo', basePulses: 1, baseTime: Date.now(), pulseRatePerSecond: 1 },
   ]
 }
 
 const argParser = require('yargs')
 const commandLineOverrides = argParser.argv
 const config = _.merge(defaultConfig, commandLineOverrides)
+
+config.pulseCounters = _.range(parseInt(config.number_pulse_counters)).map((index) => {
+  return {
+    device: `D${index}`,
+    description: `D${index}`,
+    basePulses: 1,
+    baseTime: Date.now(),
+    pulseRatePerSecond: 1
+  }
+})
 
 const intervalHandle = setInterval(() => {
   const readingsFileContents = buildReadingsFile(config.pulseCounters)
@@ -35,8 +46,8 @@ function buildReadingsFile (pulseCounters) {
   const pulseCount = (channel) => {
     const secondsSinceStart = (Date.now() - channel.baseTime) / 1000
     const pulsesBeforeOverflow = Math.floor(parseInt(channel.basePulses) + secondsSinceStart * parseFloat(channel.pulseRatePerSecond))
-    return (channel.maxPulses)
-      ? pulsesBeforeOverflow % channel.maxPulses
+    return (config.max_pulses)
+      ? pulsesBeforeOverflow % config.max_pulses
       : pulsesBeforeOverflow
   }
 
