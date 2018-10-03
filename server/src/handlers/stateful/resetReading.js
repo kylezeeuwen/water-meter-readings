@@ -9,10 +9,10 @@ class ResetReading {
   }
 
   requestHandler (req, res) {
-    const deviceChannelId = _.get(req, 'params.deviceChannelId', false)
+    const pulseCounterId = _.get(req, 'params.pulseCounterId', false)
     const newBaseReadingLitres = _.get(req, 'body.value', false)
 
-    this.pulseCounterManager.getPulseCounter(deviceChannelId)
+    this.pulseCounterManager.getPulseCounter(pulseCounterId)
       .then(pulseCounter => pulseCounter.resetReading(newBaseReadingLitres))
       .then(() => {
         res.status(200)
@@ -22,7 +22,7 @@ class ResetReading {
       })
       .catch(error => {
         res.status(500)
-        logger.error({eventType: '/device-channels/:deviceChannelId/reset-reading failed', message: error.message, stack: error.stack})
+        logger.error({eventType: `reset-reading-failed`, path: req.path, message: error.message, stack: error.stack})
         res.header('content-type', 'application/json')
         res.send({error: error.message || error, stack: error.stack})
       })

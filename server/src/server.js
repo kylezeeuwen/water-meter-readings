@@ -20,6 +20,8 @@ const healthHandler = require('./handlers/stateless/health')
 const KeyboardHandler = require('./handlers/stateful/keyboard')
 const GetReadingsHandler = require('./handlers/stateful/getReadings')
 const ResetReadingHandler = require('./handlers/stateful/resetReading')
+const UpdateDisplayName = require('./handlers/stateful/updateDisplayName')
+const UpdateLitresPerPulse = require('./handlers/stateful/updateLitresPerPulse')
 
 // persistent services
 const OverflowDetector = require('./services/overflowDetector')
@@ -72,7 +74,9 @@ class Server {
     this.handlers = {
       keyboard: new KeyboardHandler({ config: this.config.keyboard }),
       getReadings: new GetReadingsHandler({ pulseCounterManager: this.pulseCounterManager }),
-      resetReading: new ResetReadingHandler({ pulseCounterManager: this.pulseCounterManager })
+      resetReading: new ResetReadingHandler({ pulseCounterManager: this.pulseCounterManager }),
+      updateDisplayName: new UpdateDisplayName({ meterSettings: this.meterSettings }),
+      updateLitresPerPulse: new UpdateLitresPerPulse({ meterSettings: this.meterSettings })
     }
   }
 
@@ -106,53 +110,11 @@ class Server {
 
     this.express.post('/server/keyboard/show', this.handlers.keyboard.requestHandler)
 
-    this.express.post('/server/device-channels/:deviceChannelId/reset-reading', jsonParser, this.handlers.resetReading.requestHandler)
+    this.express.post('/server/pulse-counters/:pulseCounterId/reset-reading', jsonParser, this.handlers.resetReading.requestHandler)
 
-    this.express.post(`/server/device-channels/:deviceChannelId/update-display-name`, jsonParser, (req, res) => {
-      const deviceChannelId = _.get(req, 'params.deviceChannelId', false)
-      const displayName = _.get(req, 'body.value', false)
+    this.express.post(`/server/pulse-counters/:pulseCounterId/update-display-name`, jsonParser, this.handlers.updateDisplayName.requestHandler)
 
-      // NB !deviceChannelId should not ever happen (cannot get here unless deviceChannelId in path
-      if (!deviceChannelId) {this._sendValidationError(res,'missing deviceChannelId')}
-      else if (!displayName) {this._sendValidationError(res,'missing value in request body')}
-      else if (_.isEmpty(displayName)) {this._sendValidationError(res,'value cannot be empty')}
-      else {
-        this.meterSettings.setPulseCounterField(deviceChannelId, 'displayName', displayName)
-          .then(() => {
-            res.status(200)
-            res.send()
-          })
-          .catch(error => {
-            res.status(500)
-            logger.error({ eventType: `${req.path} failed`, message: error.message, stack: error.stack })
-            res.header('content-type', 'application/json')
-            res.send({ error: error.message, stack: error.stack })
-          })
-      }
-    })
-
-    this.express.post(`/server/device-channels/:deviceChannelId/update-litres-per-pulse`, jsonParser, (req, res) => {
-      const deviceChannelId = _.get(req, 'params.deviceChannelId', false)
-      const litresPerPulse = parseFloat(_.get(req, 'body.value', false))
-
-      // NB !deviceChannelId should not ever happen (cannot get here unless deviceChannelId in path
-      if (!deviceChannelId) {this._sendValidationError(res,'missing deviceChannelId')}
-      else if (_.isNaN(litresPerPulse)) {this._sendValidationError(res,'value is not a valid number')}
-      else if (litresPerPulse < 0) {this._sendValidationError(res,'value cannot be negative')}
-      else {
-        this.meterSettings.setPulseCounterField(deviceChannelId, 'litresPerPulse', litresPerPulse)
-          .then(() => {
-            res.status(200)
-            res.send()
-          })
-          .catch(error => {
-            res.status(500)
-            logger.error({ eventType: `${req.path} failed`, message: error.message, stack: error.stack })
-            res.header('content-type', 'application/json')
-            res.send({ error: error.message, stack: error.stack })
-          })
-      }
-    })
+    this.express.post(`/server/pulse-counters/:pulseCounterId/update-litres-per-pulse`, jsonParser, this.handlers.updateLitresPerPulse.requestHandler)
   }
 
   addCatchAllErrorHandlers () {

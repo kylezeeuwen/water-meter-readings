@@ -83,7 +83,7 @@ function onRowSave (event) {
 }
 
 function updateDisplayName ({ inputElement, id, newValue, originalValue }) {
-  return fetch(`/server/device-channels/${id}/update-display-name`, {
+  return fetch(`/server/pulse-counters/${id}/update-display-name`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json'
@@ -108,7 +108,7 @@ function updateDisplayName ({ inputElement, id, newValue, originalValue }) {
 }
 
 function updateLitresPerPulse ({ inputElement, id, newValue, originalValue }) {
-  return fetch(`/server/device-channels/${id}/update-litres-per-pulse`, {
+  return fetch(`/server/pulse-counters/${id}/update-litres-per-pulse`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json'
@@ -135,7 +135,7 @@ function updateLitresPerPulse ({ inputElement, id, newValue, originalValue }) {
 }
 
 function resetReading ({id, newValue, inputElement}) {
-  return fetch(`/server/device-channels/${id}/reset-reading`, {
+  return fetch(`/server/pulse-counters/${id}/reset-reading`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json'
