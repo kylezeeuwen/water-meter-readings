@@ -1,6 +1,20 @@
+body {
+    margin-top: 0px;
+}
 
 #actions-container {
-    margin-bottom: 10px;
+    display: inline-block;
+    padding: 10px;
+    background: white;
+    position: sticky;
+    top: 0px;
+    z-index: 10;
+}
+
+#content-container {
+    position: absolute;
+    top: 50px;
+    z-index: 1;
 }
 
 #error-container {

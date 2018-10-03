@@ -14,60 +14,76 @@ document.addEventListener('DOMContentLoaded', function() {
         return
       }
 
-      return response.json().then(tableRows => {
+      return response.json().then(serverResponse => {
+
+        const tableRows = serverResponse.map(rowData => {
+          return { ...rowData, readingKiloLitres: kiloLitresFromLitres(rowData.reading) }
+        })
+
         const template = $('#table-body').html()
         Mustache.parse(template)
         const rendered = Mustache.render(template, { rows:  tableRows })
         $('#table-container').html(rendered)
-        _(tableRows).each(({deviceChannelId}) => updateReadingCell({deviceChannelId}))
-
-        $('input.save').click((event) => {
-          const deviceChannelId = event.target.dataset['deviceChannelId']
-
-          const displayNameInput = $(`tr[data-device-channel-id="${deviceChannelId}"] input.display-name`)
-          const displayNameNewValue = displayNameInput[0].value
-          const displayNameOriginalValue = displayNameInput[0].dataset['originalValue']
-
-          const litresPerPulseInput = $(`tr[data-device-channel-id="${deviceChannelId}"] input.litres-per-pulse`)
-          const litresPerPulseNewValue = litresPerPulseInput[0].value
-          const litresPerPulseOriginalValue = litresPerPulseInput[0].dataset['originalValue']
-
-          const updatePromises = []
-          if (displayNameNewValue !== displayNameOriginalValue) {
-            updatePromises.push(updateDisplayName({
-              deviceChannelId,
-              newValue: displayNameNewValue,
-              originalValue: displayNameOriginalValue,
-              inputElement: displayNameInput
-            }))
-          }
-
-          if (litresPerPulseNewValue !== litresPerPulseOriginalValue) {
-            updatePromises.push(updateLitresPerPulse({
-              deviceChannelId,
-              newValue: litresPerPulseNewValue,
-              originalValue: litresPerPulseOriginalValue,
-              inputElement: litresPerPulseInput
-            }))
-          }
-
-          if (updatePromises.length > 0) {
-            const row = $(`tr[data-device-channel-id="${deviceChannelId}"]`)
-            row.addClass('saving')
-            Promise.all(updatePromises)
-              .finally(() => {
-                setTimeout(() => {
-                  row.removeClass('saving')
-                }, timings.displaySavingForAtLeast)
-              })
-          }
-        })
+        $('input.save').click(onRowSave)
       })
     })
 })
 
-function updateDisplayName ({ inputElement, deviceChannelId, newValue, originalValue }) {
-  return fetch(`/server/device-channels/${deviceChannelId}/update-display-name`, {
+function onRowSave (event) {
+  const id = event.target.dataset.pulseCounterId
+
+  const displayNameInput = $(`tr[data-pulse-counter-id="${id}"] input.display-name`)
+  const displayNameNewValue = displayNameInput[0].value
+  const displayNameOriginalValue = displayNameInput[0].dataset['originalValue']
+
+  const litresPerPulseInput = $(`tr[data-pulse-counter-id="${id}"] input.litres-per-pulse`)
+  const litresPerPulseNewValue = litresPerPulseInput[0].value
+  const litresPerPulseOriginalValue = litresPerPulseInput[0].dataset['originalValue']
+
+  const baseReadingInput = $(`tr[data-pulse-counter-id="${id}"] input.actual-reading`)
+  const baseReadingNewValue = baseReadingInput[0].value
+
+  const updatePromises = []
+  if (!_.isUndefined(baseReadingNewValue) && !_.isEmpty(baseReadingNewValue)) {
+    updatePromises.push(resetReading({
+      id,
+      newValue: parseFloat(baseReadingNewValue) * 1000,
+      inputElement: baseReadingInput
+    }))
+  }
+
+  if (displayNameNewValue !== displayNameOriginalValue) {
+    updatePromises.push(updateDisplayName({
+      id,
+      newValue: displayNameNewValue,
+      originalValue: displayNameOriginalValue,
+      inputElement: displayNameInput
+    }))
+  }
+
+  if (litresPerPulseNewValue !== litresPerPulseOriginalValue) {
+    updatePromises.push(updateLitresPerPulse({
+      id,
+      newValue: litresPerPulseNewValue,
+      originalValue: litresPerPulseOriginalValue,
+      inputElement: litresPerPulseInput
+    }))
+  }
+
+  if (updatePromises.length > 0) {
+    const row = $(`tr[data-pulse-counter-id="${id}"]`)
+    row.addClass('saving')
+    Promise.all(updatePromises)
+      .finally(() => {
+        setTimeout(() => {
+          row.removeClass('saving')
+        }, timings.displaySavingForAtLeast)
+      })
+  }
+}
+
+function updateDisplayName ({ inputElement, id, newValue, originalValue }) {
+  return fetch(`/server/pulse-counters/${id}/update-display-name`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json'
@@ -81,18 +97,18 @@ function updateDisplayName ({ inputElement, deviceChannelId, newValue, originalV
         return response.json()
           .then(body => body.message)
           .then(errorMessage => {
-            displayErrorOnRow(deviceChannelId, errorMessage)
+            displayErrorOnRow(id, errorMessage)
           })
       }
     })
     .catch(error => {
       inputElement.val(originalValue)
-      displayErrorOnRow(deviceChannelId, 'unknown error')
+      displayErrorOnRow(id, 'unknown error')
     })
 }
 
-function updateLitresPerPulse ({ inputElement, deviceChannelId, newValue, originalValue }) {
-  return fetch(`/server/device-channels/${deviceChannelId}/update-litres-per-pulse`, {
+function updateLitresPerPulse ({ inputElement, id, newValue, originalValue }) {
+  return fetch(`/server/pulse-counters/${id}/update-litres-per-pulse`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json'
@@ -102,30 +118,60 @@ function updateLitresPerPulse ({ inputElement, deviceChannelId, newValue, origin
     .then(response => {
       const success = response.status === 200
       if (success) {
-        updateReadingCell({ deviceChannelId })
+        return response.json()
+          .then(body => kiloLitresFromLitres(body.newReading))
+          .then(reading => updateReading({ id, reading }))
       } else {
         inputElement.val(originalValue)
         return response.json()
-          .then(body => body.message)
+          .then(body => body.message || body.error)
           .then(errorMessage => {
-            displayErrorOnRow(deviceChannelId, errorMessage)
+            displayErrorOnRow(id, errorMessage)
           })
       }
     })
     .catch(error => {
       inputElement.val(originalValue)
-      displayErrorOnRow(deviceChannelId, 'unknown error')
+      displayErrorOnRow(id, 'unknown error')
     })
 }
 
-function updateReadingCell ({ deviceChannelId }) {
-  const pulses = parseFloat($(`tr[data-device-channel-id="${deviceChannelId}"] td.reading`)[0].dataset['pulses'])
-  const litresPerPulse = parseFloat($(`tr[data-device-channel-id="${deviceChannelId}"] input.litres-per-pulse`)[0].value)
-  const reading = (pulses * litresPerPulse / 1000).toFixed(2)
-
-  $(`tr[data-device-channel-id="${deviceChannelId}"] td.reading`).html(reading)
+function resetReading ({id, newValue, inputElement}) {
+  return fetch(`/server/pulse-counters/${id}/reset-reading`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({ value: newValue })
+  })
+    .then(response => {
+      const success = response.status === 200
+      if (success) {
+        return response.json()
+          .then(body => kiloLitresFromLitres(body.newReading))
+          .then(reading => updateReading({ id, reading }))
+      } else {
+        inputElement.val('')
+        return response.json()
+          .then(body => body.message)
+          .then(errorMessage => {
+            displayErrorOnRow(id, errorMessage)
+          })
+      }
+    })
+    .catch(error => {
+      inputElement.val(originalValue)
+      displayErrorOnRow(id, 'unknown error')
+    })
 }
 
+function kiloLitresFromLitres(litres) {
+  return (parseFloat(litres) / 1000).toFixed(3)
+}
+
+function updateReading ({ id, reading }) {
+  $(`tr[data-pulse-counter-id="${id}"] td.computed-reading`).html(reading)
+}
 
 function delay(t, v) {
   return new Promise(function(resolve) {
@@ -133,8 +179,8 @@ function delay(t, v) {
   });
 }
 
-function displayErrorOnRow (deviceChannelId, errorMessage) {
-  const errorDiv = $(`tr[data-device-channel-id="${deviceChannelId}"] div.error-text`)
+function displayErrorOnRow (id, errorMessage) {
+  const errorDiv = $(`tr[data-pulse-counter-id="${id}"] div.error-text`)
   errorDiv.html(errorMessage)
   setTimeout(() => {
     errorDiv.html('')
