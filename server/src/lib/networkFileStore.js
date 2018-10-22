@@ -34,25 +34,25 @@ class NetworkFileStore {
   }
 
   // handle 404 etc (request doesn't throw error on 4XX or 5XX
-  readFile (fileName) {
+  readFile (filePath) {
     return new Promise((resolve, reject) => {
-      const fullUrl = `${this.fileStoreUrl}/FS/WEB/${fileName}`
+      const fullUrl = `${this.fileStoreUrl}${filePath}`
       this.counts.totalReadRequests++
       request(fullUrl, function (error, response, body) {
         if (error) {
-          logger.error({ eventType: 'network_file_get_fail', fileName, error, ...this.counts })
-          error.message = `Fail to retrieve ${fileName} at ${fullUrl}: error:${_.get(error, 'message')}`
+          logger.error({ eventType: 'network_file_get_fail', filePath, error, ...this.counts })
+          error.message = `Fail to retrieve ${filePath} at ${fullUrl}: error:${_.get(error, 'message')}`
           return reject(error)
         } else if (response && response.statusCode === 404) {
-          logger.warn({ eventType: 'network_file_get_fail', fileName, code: response.statusCode, ...this.counts })
-          return reject(new FileNotFoundError(fileName, fullUrl))
+          logger.warn({ eventType: 'network_file_get_fail', filePath, code: response.statusCode, ...this.counts })
+          return reject(new FileNotFoundError(filePath, fullUrl))
         } else if (response && response.statusCode >= 400) {
-          logger.error({ eventType: 'network_file_get_fail', fileName, code: response.statusCode, ...this.counts })
-          const newError = new Error(`Fail to retrieve ${fileName} at ${fullUrl}: code:${_.get(response, 'statusCode')}`)
+          logger.error({ eventType: 'network_file_get_fail', filePath, code: response.statusCode, ...this.counts })
+          const newError = new Error(`Fail to retrieve ${filePath} at ${fullUrl}: code:${_.get(response, 'statusCode')}`)
           newError.code = response.statusCode
           return reject(newError)
         } else {
-          logger.info({ eventType: 'network_file_get_success', code: response && response.statusCode, fileName, ...this.counts })
+          logger.info({ eventType: 'network_file_get_success', code: response && response.statusCode, filePath, ...this.counts })
           return resolve(body)
         }
       });
