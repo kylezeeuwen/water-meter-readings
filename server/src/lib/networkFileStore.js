@@ -173,7 +173,11 @@ class NetworkFileStore {
     }
   }
 
-  _networkWrite ({ fileName, fileContent, contentType, writeId }) {
+  _networkWrite ({ fileName: filePath, fileContent, contentType, writeId }) {
+
+    const prefixRegex = new RegExp('/FS/WEB/')
+    const fileName = filePath.replace(prefixRegex, '')
+
     return new Promise((resolve, reject) => {
 
       const contentStream = new Readable()
