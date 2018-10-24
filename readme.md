@@ -1,4 +1,4 @@
-
+#nickisawesome
 # Installation
 NB Tested with node 8.9.4 on OSX 10.13.6. No other environments tested yet 
 NB Also tested with rasperry Pi 
